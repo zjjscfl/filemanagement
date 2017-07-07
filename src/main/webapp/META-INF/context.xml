@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/filemanagement">
+    <ResourceLink global="jdbc/filemanagement" name="jdbc/filemanagement" type="javax.sql.DataSource"/>
+    <ResourceLink global="file_root" name="file_root" type="java.lang.String"/>
+</Context>
