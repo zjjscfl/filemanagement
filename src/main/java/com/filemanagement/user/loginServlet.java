@@ -7,7 +7,6 @@ package com.filemanagement.user;
 
 import com.filemanagement.config.Config;
 import com.filemanagement.service.SqlService;
-import com.filemanagement.util.CheckLogin;
 import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,12 +14,13 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
  * @author ubuntu
  */
-public class userMangerServlet extends HttpServlet {
+public class loginServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,42 +39,38 @@ public class userMangerServlet extends HttpServlet {
 
         try (PrintWriter out = response.getWriter()) {
             JsonObject oResult = new JsonObject();
-            oResult = CheckLogin.getInstance().isLogin(request, response);
-            if (!oResult.get(Config.RESULT).getAsBoolean()) {
-                String id = request.getParameter("id");//当前用户ID
-                if (id == null || id == "") {
-                    id = oResult.get(Config.USERID).getAsString();
-                }
-                oResult = null;
-                String action = request.getParameter("action");
-                if ("add".equals(action)) {//添加用户
-                    // /userManger?action=add&name=admin&space=500&id=0
-                    String name = request.getParameter("name");//用户名
-                    String space = request.getParameter("space");//空间大小  
-                    oResult = SqlService.getInstance().addUser(name, Config.PROSSWORD, space, id);
-                } else if ("update".equals(action)) {//修改用户信息
-                    // /userManger?action=update&name=admin2&space=200&userid=2&id=1
-                    String name = request.getParameter("name");//用户名
-                    String space = request.getParameter("space");//空间大小
-                    String userid = request.getParameter("userid");//要修改的用户ID
-                    oResult = SqlService.getInstance().updateUser(name, space, id, userid);
-                } else if ("getList".equals(action)) {//获取用户层级列表根据上级ID
-                    // /userManger?action=getList&id=0
-                    oResult = SqlService.getInstance().getUserList(id);
-                } else if ("password".equals(action)) {//用户修改密码,或重置,若userid为null则表示修改自己的密码
-                    // /userManger?action=password&userid=12&id=1&pwd=123456
-                    // /userManger?action=password&userid=&id=&pwd=
-                    String userid = request.getParameter("userid");//要修改的用户ID
-                    String pwd = request.getParameter("pwd");
-                    oResult = SqlService.getInstance().password(id, userid, pwd);
-                } else {
-                    oResult.addProperty(Config.RESULT, Boolean.TRUE);
-                    oResult.addProperty(Config.MESSAGE, "非法的请求");
+            String username = request.getParameter("username");
+            String password = request.getParameter("password");
+            if (username == null) {
+                oResult = new JsonObject();
+                oResult.addProperty(Config.RESULT, Boolean.TRUE);
+                oResult.addProperty(Config.MESSAGE, "用户名不可为空");
+            } else if (password == null) {
+                oResult = new JsonObject();
+                oResult.addProperty(Config.RESULT, Boolean.TRUE);
+                oResult.addProperty(Config.MESSAGE, "密码不可为空");
+            } else {
+                oResult = SqlService.getInstance().Login(username, password);
+                if (!oResult.get(Config.RESULT).getAsBoolean()) {
+                    int userid = oResult.get(Config.USERID).getAsInt();
+                    int status = oResult.get(Config.USERSTATUS).getAsInt();
+                    if (status >= 0) {
+                        HttpSession session = request.getSession();
+                        User user = new User();
+                        user.userid = userid;
+                        user.username = username;
+                        user.status = status;
+                        session.setAttribute(Config.USER, user);
+                        oResult.addProperty(Config.RESULT, Boolean.FALSE);
+                    } else {
+                        oResult = null;
+                        oResult.addProperty(Config.RESULT, Boolean.TRUE);
+                        oResult.addProperty(Config.MESSAGE, "帐号被禁用");
+                    }
                 }
             }
             out.print(oResult.toString());
         }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

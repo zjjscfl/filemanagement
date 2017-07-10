@@ -359,6 +359,7 @@ public class SqlService {
             }
         } catch (SQLException ex) {
             Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
         } finally {
             if (rs != null) {
                 try {
@@ -513,6 +514,67 @@ public class SqlService {
                     }
                     conn = null;
                 }
+            }
+        }
+        return request;
+    }
+
+    //登录
+    public JsonObject Login(String name, String pwd) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT `User`.id,`User`.salt,`User`.`name`,`User`.pwd,`User`.`status` FROM `User` WHERE `User`.`name`=?");
+            stmt.setString(1, name);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                if (CodecHelper.calcMD5((rs.getString(2) + pwd).getBytes()).equals(rs.getString(4))) {
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+                    request.addProperty(Config.USERID, rs.getInt(1));
+                    request.addProperty(Config.USERSTATUS, rs.getInt(5));
+                } else {
+                    request.addProperty(Config.MESSAGE, "密码错误");
+                }
+            } else {
+                request.addProperty(Config.MESSAGE, "用户名不存在");
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
             }
         }
         return request;

@@ -8,9 +8,33 @@
         <servlet-name>userMangerServlet</servlet-name>
         <servlet-class>com.filemanagement.user.userMangerServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>loginServlet</servlet-name>
+        <servlet-class>com.filemanagement.user.loginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>logoutServlet</servlet-name>
+        <servlet-class>com.filemanagement.user.logoutServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>checkLoginServlet</servlet-name>
+        <servlet-class>com.filemanagement.user.checkLoginServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>userMangerServlet</servlet-name>
         <url-pattern>/userManger</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>loginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>logoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>checkLoginServlet</servlet-name>
+        <url-pattern>/checkLogin</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
