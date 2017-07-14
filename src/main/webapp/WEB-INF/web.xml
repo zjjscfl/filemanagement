@@ -20,6 +20,18 @@
         <servlet-name>checkLoginServlet</servlet-name>
         <servlet-class>com.filemanagement.user.checkLoginServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>getChunkedFileSizeServlet</servlet-name>
+        <servlet-class>com.filemanagement.file.getChunkedFileSizeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>appendUploadServerServlet</servlet-name>
+        <servlet-class>com.filemanagement.file.appendUploadServerServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>getUUIDServlet</servlet-name>
+        <servlet-class>com.filemanagement.file.getUUIDServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>userMangerServlet</servlet-name>
         <url-pattern>/userManger</url-pattern>
@@ -35,6 +47,18 @@
     <servlet-mapping>
         <servlet-name>checkLoginServlet</servlet-name>
         <url-pattern>/checkLogin</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>getChunkedFileSizeServlet</servlet-name>
+        <url-pattern>/getChunkedFileSize</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>appendUploadServerServlet</servlet-name>
+        <url-pattern>/appendUploadServer</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>getUUIDServlet</servlet-name>
+        <url-pattern>/getUUID</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

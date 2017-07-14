@@ -58,7 +58,7 @@ public class SqlService {
             request.addProperty(Config.MESSAGE, "上级ID必需是数字");
         } else {
             try {
-                int int_space = TypeChange.getInstance().stringToInt(space);
+                long int_space = TypeChange.getInstance().stringToLong(space);
                 int int_parent = TypeChange.getInstance().stringToInt(parent);
 
                 boolean mark = false;
@@ -80,7 +80,7 @@ public class SqlService {
                     stmt.setInt(1, int_parent);
                     rs = stmt.executeQuery();
                     if (rs.next()) {
-                        if (int_space > rs.getInt(1)) {
+                        if (int_space > rs.getLong(1)) {
                             mark = true;
                         }
                     }
@@ -96,8 +96,8 @@ public class SqlService {
                         stmt.setString(1, salt);
                         stmt.setString(2, name);
                         stmt.setString(3, CodecHelper.calcMD5((salt + pwd).getBytes()));
-                        stmt.setInt(4, int_space);
-                        stmt.setInt(5, int_space);
+                        stmt.setLong(4, int_space);
+                        stmt.setLong(5, int_space);
                         stmt.setInt(6, int_parent);
                         if (stmt.executeUpdate() == 1) {
                             request.addProperty(Config.RESULT, Boolean.FALSE);
@@ -112,7 +112,7 @@ public class SqlService {
                             request.addProperty(Config.MESSAGE, "添加用户失败");
                         } else {
                             stmt = conn.prepareStatement("UPDATE `User` SET `User`.`limitspace`=`User`.`limitspace`-? WHERE (`User`.`id`=?)");
-                            stmt.setInt(1, int_space);
+                            stmt.setLong(1, int_space);
                             stmt.setInt(2, int_parent);
                             if (stmt.executeUpdate() == 1) {
 
@@ -198,7 +198,7 @@ public class SqlService {
             request.addProperty(Config.MESSAGE, "用户ID必需是数字");
         } else {
             try {
-                int int_space = TypeChange.getInstance().stringToInt(space);
+                long int_space = TypeChange.getInstance().stringToLong(space);
                 int int_id = TypeChange.getInstance().stringToInt(id);
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
                 boolean mark = false;
@@ -228,7 +228,7 @@ public class SqlService {
                     stmt.setInt(1, int_id);
                     rs = stmt.executeQuery();
                     if (rs.next()) {
-                        if (int_space > rs.getInt(1)) {
+                        if (int_space > rs.getLong(1)) {
                             mark = true;
                         }
                     }
@@ -241,10 +241,10 @@ public class SqlService {
                     } else {
                         stmt = conn.prepareStatement("UPDATE `User` SET `User`.`name`=?,`User`.`limitspace`=(?-`User`.`space`)+`User`.`limitspace`, `User`.`space`=? WHERE (`id`=?) AND ?>=`User`.`limitspace`");
                         stmt.setString(1, name);
-                        stmt.setInt(2, int_space);
-                        stmt.setInt(3, int_space);
+                        stmt.setLong(2, int_space);
+                        stmt.setLong(3, int_space);
                         stmt.setInt(4, int_userid);
-                        stmt.setInt(5, int_space);
+                        stmt.setLong(5, int_space);
                         if (stmt.executeUpdate() == 1) {
                             request.addProperty(Config.RESULT, Boolean.FALSE);
                             request.addProperty(Config.MESSAGE, "用户修改成功");
@@ -334,8 +334,8 @@ public class SqlService {
                     id = rs.getInt(1);
                     temp.addProperty("id", id);
                     temp.addProperty("name", rs.getString(2));
-                    temp.addProperty("limitspace", rs.getInt(3));
-                    temp.addProperty("space", rs.getInt(4));
+                    temp.addProperty("limitspace", TypeChange.getInstance().autoChangeB(rs.getLong(3)));
+                    temp.addProperty("space", TypeChange.getInstance().autoChangeB(rs.getLong(4)));
                     parent = rs.getInt(5);
                     temp.addProperty("parent", parent);
                     temp.addProperty("status", rs.getInt(6));
@@ -579,4 +579,135 @@ public class SqlService {
         }
         return request;
     }
+
+    //添加文件
+    public JsonObject addFile(int userid, String hash, String sourcename, String targetname, String mime, long size, int status) {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        JsonObject request = new JsonObject();
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        request.addProperty(Config.MESSAGE, "添加文件信息失败");
+        if (TypeChange.getInstance().isNotNull(hash)) {
+            request.addProperty(Config.MESSAGE, "文件hash不能为空");
+        } else if (hash.length() > 32) {
+            request.addProperty(Config.MESSAGE, "文件hash不能超过32字符");
+        } else if (TypeChange.getInstance().isNotNull(sourcename)) {
+            request.addProperty(Config.MESSAGE, "文件名不能为空");
+        } else if (sourcename.length() > 255) {
+            request.addProperty(Config.MESSAGE, "文件名不能超过255字符");
+        } else if (TypeChange.getInstance().isNotNull(targetname)) {
+            request.addProperty(Config.MESSAGE, "文件名不能为空");
+        } else if (targetname.length() > 255) {
+            request.addProperty(Config.MESSAGE, "文件名不能超过255字符");
+        } else if (TypeChange.getInstance().isNotNull(mime)) {
+            request.addProperty(Config.MESSAGE, "文件类型不能为空");
+        } else if (mime.length() > 255) {
+            request.addProperty(Config.MESSAGE, "文件类型不能超过255字符");
+        } else {
+            try {
+
+                boolean mark = false;
+                conn = ConfigManager.getInstance().getConnection();
+                stmt = conn.prepareStatement("SELECT `User`.limitspace FROM `User` WHERE `User`.id = ?");
+                stmt.setInt(1, userid);
+                rs = stmt.executeQuery();
+                if (rs.next()) {
+                    if (size > rs.getLong(1)) {
+                        mark = true;
+                    }
+                }
+                rs.close();
+                rs = null;
+                stmt.close();
+                stmt = null;
+                if (mark) {
+                    request.addProperty(Config.MESSAGE, "您的空间不足");
+                } else {
+                    stmt = conn.prepareStatement("INSERT INTO File (File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.size,File.`status`,File.lasttime) VALUES (?, ?, ?, ?, ?, ?, ?,now())");
+                    stmt.setInt(1, userid);
+                    stmt.setString(2, hash);
+                    stmt.setString(3, sourcename);
+                    stmt.setString(4, targetname);
+                    stmt.setString(5, mime);
+                    stmt.setLong(6, size);
+                    stmt.setInt(7, status);
+                    if (stmt.executeUpdate() == 1) {
+                        request.addProperty(Config.RESULT, Boolean.FALSE);
+                        request.addProperty(Config.MESSAGE, "添加成功");
+                    } else {
+                        mark = true;
+                    }
+                    stmt.close();
+                    stmt = null;
+                    if (mark) {
+                        request.addProperty(Config.RESULT, Boolean.TRUE);
+                        request.addProperty(Config.MESSAGE, "添加失败");
+                    } else {
+                        stmt = conn.prepareStatement("UPDATE `User` SET `User`.`limitspace`=`User`.`limitspace`-? WHERE (`User`.`id`=?)");
+                        stmt.setLong(1, size);
+                        stmt.setInt(2, userid);
+                        if (stmt.executeUpdate() == 1) {
+
+                        } else {
+                            request.addProperty(Config.RESULT, Boolean.TRUE);
+                            request.addProperty(Config.MESSAGE, "添加成功，但扣除空间失败");
+                        }
+                    }
+                    stmt.close();
+                    stmt = null;
+                }
+                conn.close();
+                conn = null;
+            } catch (SQLException ex) {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException ex1) {
+                        Log.log(Level.SEVERE, null, ex1);
+                    }
+                }
+                Log.log(Level.SEVERE, null, ex);
+                request.addProperty(Config.MESSAGE, "添加失败,程序异常");
+            } finally {
+                if (rs != null) {
+                    try {
+                        rs.close();
+                    } catch (SQLException ex) {
+                        Log.log(Level.SEVERE, null, ex);
+                    }
+                    rs = null;
+                }
+                if (stmt != null) {
+                    try {
+                        stmt.close();
+
+                    } catch (SQLException ex) {
+                        Log.log(Level.SEVERE, null, ex);
+                    }
+                    stmt = null;
+                }
+                if (stmt != null) {
+                    try {
+                        stmt.close();
+
+                    } catch (SQLException ex) {
+                        Log.log(Level.SEVERE, null, ex);
+                    }
+                    stmt = null;
+                }
+                if (conn != null) {
+                    try {
+                        conn.close();
+
+                    } catch (SQLException ex) {
+                        Log.log(Level.SEVERE, null, ex);
+                    }
+                    conn = null;
+                }
+            }
+        }
+        return request;
+    }
+
 }

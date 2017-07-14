@@ -48,6 +48,17 @@ public class TypeChange {
         return integer.intValue();
     }
 
+    //change the string type to the int type
+    public Long stringToLong(String longstr) {
+        Long l;
+        if (longstr == null || "".equals(longstr)) {
+            l = (long) 0;
+        } else {
+            l = Long.valueOf(longstr);
+        }
+        return l;
+    }
+
 //change int type to the string type
     public String intToString(int value) {
         Integer integer = new Integer(value);
@@ -65,5 +76,35 @@ public class TypeChange {
     public String floatToString(float value) {
         Float floatee = new Float(value);
         return floatee.toString();
+    }
+
+    //B转KB
+    public String BToKB(long value) {
+        return (double) Math.round(value * 100 / 1024) / 100 + "KB";
+    }
+
+    //B转MB
+    public String BToMB(long value) {
+        return (double) Math.round(value * 100 / (1024 * 1024)) / 100 + "MB";
+    }
+
+    //B转GB
+    public String BToGB(long value) {
+        return (double) Math.round(value * 100 / (1024 * 1024 * 1024)) / 100 + "GB";
+    }
+
+    //自动转换B为KB，MB，GB
+    public String autoChangeB(long value) {
+        String request = null;
+        if (value >= (1024 * 1024 * 1024)) {
+            request = (double) Math.round(value * 100 / (1024 * 1024 * 1024)) / 100 + "GB";
+        } else if (value >= (1024 * 1024)) {
+            request = (double) Math.round(value * 100 / (1024 * 1024)) / 100 + "MB";
+        } else if (value >= 1024) {
+            request = (double) Math.round(value * 100 / 1024) / 100 + "KB";
+        } else {
+            request = value + "B";
+        }
+        return request;
     }
 }

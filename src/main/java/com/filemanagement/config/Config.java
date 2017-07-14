@@ -17,6 +17,7 @@ public class Config {
     final public static String USERID = "USERID";
     final public static String USERNAME = "USERNAME";
     final public static String USERSTATUS = "USERSTATUS";
+    final public static String FILEUUID = "FILEUUID";
     //json消息
     final public static String RESULT = "RESULT";
     final public static String MESSAGE = "MESSAGE";
