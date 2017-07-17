@@ -63,7 +63,8 @@ public class appendUploadServerServlet extends HttpServlet {
                 String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator;// 记录当前文件的绝对路径
                 FileUtil.getInstance().creatDirectory(currentFilePath);
                 String fileName = request.getParameter("fileName");
-                String targetname = request.getParameter("uuid") + fileName.substring(fileName.lastIndexOf(".") + 1);
+                String targetname = request.getParameter("uuid") + fileName.substring(fileName.lastIndexOf("."));
+                String fileHash = request.getParameter("fileHash");
                 File file = new File(currentFilePath + targetname);
                 // 存在
                 if (file.exists()) {
@@ -71,7 +72,7 @@ public class appendUploadServerServlet extends HttpServlet {
                 } else {
                     // 不存在文件，根据文件标识创建文件
                     randomAccessfile = new RandomAccessFile(currentFilePath + targetname, "rw");
-                    String fileHash = request.getParameter("fileHash");
+
                     String mine = new MimetypesFileTypeMap().getContentType(fileName); //获取mime type
                     oResult = SqlService.getInstance().addFile(id, fileHash, fileName, targetname, mine, totalSize, 0);
                 }
@@ -103,6 +104,7 @@ public class appendUploadServerServlet extends HttpServlet {
                     // 整个文件上传完成,修改文件后缀
                     if (currentFileLength == totalSize) {
                         //更改文件状态
+                        oResult = SqlService.getInstance().updateFile(fileHash, 1);
                     }
                     out.print(currentFileLength);
                 } else {

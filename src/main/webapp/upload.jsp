@@ -47,7 +47,7 @@
 
                     //获取当前文件已经上传大小
                     jQuery.post("/filemanagement/getChunkedFileSize",
-                            {"fileName": encodeURIComponent(file.name), "fileSize": file.size, "uuid": uuid, "chunkedFileSize": "chunkedFileSize"},
+                            {"fileName": encodeURIComponent(file.name), "fileSize": file.size, "uuid": "4f14cdcb-ea15-49a7-8697-4b8a31b5b135", "chunkedFileSize": "chunkedFileSize", "fileHash": "A877A0B1DBEC83C243CA3FE458A29DCB"},
                             function (data) {
                                 if (data != -1) {
                                     endSize = Number(data);
@@ -89,7 +89,7 @@
                         }
                     };//创建回调方法
                     xhr.open("POST",
-                            "/filemanagement/appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=",
+                            "/filemanagement/appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=4f14cdcb-ea15-49a7-8697-4b8a31b5b135" + "&fileHash=A877A0B1DBEC83C243CA3FE458A29DCB",
                             false);
                     xhr.overrideMimeType("application/octet-stream;charset=utf-8");
                     xhr.sendAsBinary(evt.target.result);

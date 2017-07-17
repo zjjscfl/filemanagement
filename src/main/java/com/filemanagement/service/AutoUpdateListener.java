@@ -78,6 +78,7 @@ public class AutoUpdateListener implements ServletContextListener {
             stmt = null;
             conn.close();
             conn = null;
+            SqlService.getInstance().autoAddUser();
         } catch (SQLException ex) {
             if (conn != null) {
                 try {

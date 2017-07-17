@@ -36,6 +36,98 @@ public class SqlService {
 
     private final Logger Log = Logger.getLogger(SqlService.class.getName());
 
+    public JsonObject autoAddUser() {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        JsonObject request = new JsonObject();
+        try {
+            boolean mark = false;
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT `User`.id FROM `User` WHERE `User`.id>0 AND `User`.`name` =?");
+            stmt.setString(1, "admin");
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                mark = true;
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+            if (mark) {
+                request.addProperty(Config.RESULT, Boolean.TRUE);
+                request.addProperty(Config.MESSAGE, "用户名重复");
+            } else {
+                String salt = Salt.getInstance().generateShortUuid();
+                stmt = conn.prepareStatement("INSERT INTO `User` (`User`.`salt`, `User`.`name`, `User`.`pwd`, `User`.`limitspace`, `User`.`space`, `User`.`parent`) VALUES (?, ?, ?, ?, ?, ?)");
+                stmt.setString(1, salt);
+                stmt.setString(2, "admin");
+                stmt.setString(3, CodecHelper.calcMD5((salt + Config.PROSSWORD).getBytes()));
+                stmt.setString(4, "1099511627776");
+                stmt.setString(5, "1099511627776");
+                stmt.setInt(6, 0);
+                if (stmt.executeUpdate() == 1) {
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+                    request.addProperty(Config.MESSAGE, "用户添加成功");
+                } else {
+                    mark = true;
+                }
+                stmt.close();
+                stmt = null;
+
+            }
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex1) {
+                    Log.log(Level.SEVERE, null, ex1);
+                }
+            }
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "用户添加失败,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
     //添加用户
     public JsonObject addUser(String name, String pwd, String space, String parent) {
         Connection conn = null;
@@ -707,6 +799,68 @@ public class SqlService {
                 }
             }
         }
+        return request;
+    }
+
+    //添加文件
+    public JsonObject updateFile(String hash, int status) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("UPDATE `File` SET File.`status`=? WHERE File.`hash`=?");
+            stmt.setInt(1, status);
+            stmt.setString(2, hash);
+            if (stmt.executeUpdate() == 1) {
+                request.addProperty(Config.RESULT, Boolean.FALSE);
+                request.addProperty(Config.MESSAGE, "上传文件成功");
+            } else {
+                request.addProperty(Config.RESULT, Boolean.TRUE);
+                request.addProperty(Config.MESSAGE, "上传文件失败");
+            }
+            stmt.close();
+            stmt = null;
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex1) {
+                    Log.log(Level.SEVERE, null, ex1);
+                }
+            }
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "上传文件失败,程序异常");
+        } finally {
+
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+
         return request;
     }
 

@@ -47,7 +47,7 @@ public class getChunkedFileSizeServlet extends HttpServlet {
                 oResult = null;
                 String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator;
                 String fileName = request.getParameter("fileName");
-                String targetname = request.getParameter("uuid") + fileName.substring(fileName.lastIndexOf(".") + 1);
+                String targetname = request.getParameter("uuid") + fileName.substring(fileName.lastIndexOf("."));
                 File file = new File(currentFilePath + targetname);
                 if (file.exists()) {
                     out.print(file.length());
