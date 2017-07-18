@@ -16,8 +16,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -502,6 +505,25 @@ public class SqlService {
         return ListArray;
     }
 
+    //获取子集
+    public List<Integer> getChildren(List<Integer> ListArray, int parentId, HashMap<Integer, Integer> list_map) {
+        Iterator iter = list_map.entrySet().iterator();
+        int key = 0;
+        int val = 0;
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            key = (int) entry.getKey();
+            val = (int) entry.getValue();
+
+            if (val == parentId) {
+                ListArray.add(key);
+                getChildren(ListArray, key, list_map);
+            }
+
+        }
+        return ListArray;
+    }
+
     public JsonObject password(String id, String userid, String pwd) {
         JsonObject request = new JsonObject();
         Connection conn = null;
@@ -864,4 +886,247 @@ public class SqlService {
         return request;
     }
 
+    //获取用户文件列表
+    public JsonObject getUserFileList(String userid, String str_pageSize, String str_currentPage) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            if (TypeChange.getInstance().isNotNull(userid)) {
+                request.addProperty(Config.MESSAGE, "用户ID不能为空");
+            } else if (TypeChange.getInstance().isNotNull(str_pageSize)) {
+                request.addProperty(Config.MESSAGE, "pageSize不能为空");
+            } else if (TypeChange.getInstance().isNotNull(str_currentPage)) {
+                request.addProperty(Config.MESSAGE, "currentPage不能为空");
+            } else {
+                int totalSize = 0;
+                int int_userid = TypeChange.getInstance().stringToInt(userid);
+                int pageSize = TypeChange.getInstance().stringToInt(str_pageSize);
+                int currentPage = TypeChange.getInstance().stringToInt(str_currentPage);
+                JsonArray ListArray = new JsonArray();
+                conn = ConfigManager.getInstance().getConnection();
+                stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File WHERE File.userid=? AND File.`status`>=?");
+                stmt.setInt(1, int_userid);
+                stmt.setInt(2, 0);
+                rs = stmt.executeQuery();
+                if (rs.next()) {
+                    totalSize = rs.getInt(1);
+                }
+                if (totalSize == 0) {
+                    request.addProperty("totalPages", 0);
+                    request.addProperty("currentPage", currentPage);
+                    request.add("ListArray", ListArray);
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+
+                } else {
+                    //计算出总页数
+                    int totalPages = totalSize / pageSize + ((totalSize % pageSize) > 0 ? 1 : 0);
+                    if (currentPage <= 0) {
+                        currentPage = 1;
+                    } else if (currentPage > totalPages) {
+                        currentPage = totalPages;
+                    }
+                    //计算出当前页面的起始行和最后一行
+                    int startRow = pageSize * (currentPage - 1);
+                    int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
+                    int limitRow = maxRow - startRow;
+                    String targetname = null;
+                    stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status` FROM File WHERE File.userid=? AND File.`status`>=? ORDER BY File.lasttime DESC LIMIT ?,?");
+                    stmt.setInt(1, int_userid);
+                    stmt.setInt(2, 0);
+                    stmt.setInt(3, startRow);
+                    stmt.setInt(4, limitRow);
+                    rs = stmt.executeQuery();
+                    while (rs.next()) {
+                        JsonObject temp = new JsonObject();
+                        temp.addProperty("id", rs.getInt(1));
+                        temp.addProperty("userid", rs.getInt(2));
+                        temp.addProperty("hash", rs.getString(3));
+                        temp.addProperty("sourcename", rs.getString(4));
+                        targetname = rs.getString(5);
+                        temp.addProperty("targetname", targetname);
+                        temp.addProperty("uuid", targetname.substring(0, targetname.lastIndexOf(".")));
+                        temp.addProperty("mime", rs.getString(6));
+                        temp.addProperty("lasttime", rs.getString(7));
+                        temp.addProperty("size", TypeChange.getInstance().autoChangeB(rs.getLong(8)));
+                        ListArray.add(temp);
+                        temp = null;
+                        targetname = null;
+                    }
+                    rs.close();
+                    rs = null;
+                    stmt.close();
+                    stmt = null;
+                    request.addProperty("totalPages", totalPages);
+                    request.addProperty("currentPage", currentPage);
+                    request.add("ListArray", ListArray);
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+                }
+                conn.close();
+                conn = null;
+            }
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+    //获取文件列表
+    public JsonObject getFileList(String userid, String str_pageSize, String str_currentPage) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            if (TypeChange.getInstance().isNotNull(userid)) {
+                request.addProperty(Config.MESSAGE, "用户ID不能为空");
+            } else if (TypeChange.getInstance().isNotNull(str_pageSize)) {
+                request.addProperty(Config.MESSAGE, "pageSize不能为空");
+            } else if (TypeChange.getInstance().isNotNull(str_currentPage)) {
+                request.addProperty(Config.MESSAGE, "currentPage不能为空");
+            } else {
+                int totalSize = 0;
+                int int_userid = TypeChange.getInstance().stringToInt(userid);
+                int pageSize = TypeChange.getInstance().stringToInt(str_pageSize);
+                int currentPage = TypeChange.getInstance().stringToInt(str_currentPage);
+                JsonArray ListArray = new JsonArray();
+                HashMap<Integer, Integer> list_map = new HashMap<>();//存放所有的用户
+                conn = ConfigManager.getInstance().getConnection();
+                stmt = conn.prepareStatement("SELECT `User`.id,`User`.parent FROM `User`");
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    list_map.put(rs.getInt(1), rs.getInt(2));
+                }
+                rs.close();
+                rs = null;
+                stmt.close();
+                stmt = null;
+                List<Integer> list = new ArrayList<>();
+                list = getChildren(list, int_userid, list_map);
+                String idList = null;
+                if (list.size() >= 0) {
+                    list.add(int_userid);
+                    idList = list.toString();
+                }
+                if (idList == null) {
+                    request.addProperty(Config.MESSAGE, "用户ID不能为空");
+                } else {
+                    idList = idList.substring(1, idList.length() - 1);
+                    stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")");
+                    rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        totalSize = rs.getInt(1);
+                    }
+                    if (totalSize == 0) {
+                        request.addProperty("totalPages", 0);
+                        request.addProperty("currentPage", currentPage);
+                        request.add("ListArray", ListArray);
+                        request.addProperty(Config.RESULT, Boolean.FALSE);
+
+                    } else {
+                        //计算出总页数
+                        int totalPages = totalSize / pageSize + ((totalSize % pageSize) > 0 ? 1 : 0);
+                        if (currentPage <= 0) {
+                            currentPage = 1;
+                        } else if (currentPage > totalPages) {
+                            currentPage = totalPages;
+                        }
+                        //计算出当前页面的起始行和最后一行
+                        int startRow = pageSize * (currentPage - 1);
+                        int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
+                        int limitRow = maxRow - startRow;
+                        String targetname = null;
+                        stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`User`.`name`,`User`.parent FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ") ORDER BY File.lasttime DESC LIMIT ?,?");
+                        stmt.setInt(1, startRow);
+                        stmt.setInt(2, limitRow);
+                        rs = stmt.executeQuery();
+                        while (rs.next()) {
+                            JsonObject temp = new JsonObject();
+                            temp.addProperty("id", rs.getInt(1));
+                            temp.addProperty("userid", rs.getInt(2));
+                            temp.addProperty("hash", rs.getString(3));
+                            temp.addProperty("sourcename", rs.getString(4));
+                            targetname = rs.getString(5);
+                            temp.addProperty("targetname", targetname);
+                            temp.addProperty("uuid", targetname.substring(0, targetname.lastIndexOf(".")));
+                            temp.addProperty("mime", rs.getString(6));
+                            temp.addProperty("lasttime", rs.getString(7));
+                            temp.addProperty("size", TypeChange.getInstance().autoChangeB(rs.getLong(8)));
+                            ListArray.add(temp);
+                            temp = null;
+                            targetname = null;
+                        }
+                        rs.close();
+                        rs = null;
+                        stmt.close();
+                        stmt = null;
+                        request.addProperty("totalPages", totalPages);
+                        request.addProperty("currentPage", currentPage);
+                        request.add("ListArray", ListArray);
+                        request.addProperty(Config.RESULT, Boolean.FALSE);
+                    }
+                }
+                conn.close();
+                conn = null;
+            }
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
 }
