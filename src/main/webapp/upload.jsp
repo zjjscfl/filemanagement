@@ -1,7 +1,7 @@
 <%-- 
-    Document   : upload
+    Document   : upload.jsp
     Created on : 2017-7-13, 15:20:54
-    Author     : ubuntu
+    Author     : kris
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
