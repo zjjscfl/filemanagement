@@ -13,3 +13,5 @@ userManger?action=add&name=admin13&space=100000
 getUUID
 
 file?action=delFile&fileid=1,2
+
+fileDown?fileid=1

@@ -36,6 +36,10 @@
         <servlet-name>fileServlet</servlet-name>
         <servlet-class>com.filemanagement.file.fileServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>fileDownServlet</servlet-name>
+        <servlet-class>com.filemanagement.file.fileDownServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>userMangerServlet</servlet-name>
         <url-pattern>/userManger</url-pattern>
@@ -67,6 +71,10 @@
     <servlet-mapping>
         <servlet-name>fileServlet</servlet-name>
         <url-pattern>/file</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>fileDownServlet</servlet-name>
+        <url-pattern>/fileDown</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

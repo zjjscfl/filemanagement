@@ -1265,4 +1265,64 @@ public class SqlService {
         }
         return request;
     }
+
+    //获取文件信息
+    public JsonObject getFileInfo(int fileid) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT File.sourcename,File.targetname,File.mime,File.`status` FROM File WHERE id=?");
+            stmt.setInt(1, fileid);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                request.addProperty("sourcename", rs.getString(1));
+                request.addProperty("targetname", rs.getString(2));
+                request.addProperty("mime", rs.getString(3));
+                request.addProperty("status", rs.getInt(4));
+                request.addProperty(Config.RESULT, Boolean.FALSE);
+            } else {
+                request.addProperty(Config.MESSAGE, "未查询到数据");
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
 }
