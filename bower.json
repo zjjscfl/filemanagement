@@ -1,0 +1,22 @@
+{
+  "name": "filemanagement",
+  "description": "checkLogin",
+  "main": "index.js",
+  "authors": [
+    "kris <qqkris@163.com>"
+  ],
+  "license": "ISC",
+  "homepage": "https://github.com/zjjscfl/filemanagement",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "bootstrap": "^3.3.7",
+    "pnotify": "^3.2.0"
+  }
+}
