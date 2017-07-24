@@ -44,13 +44,13 @@ public class fileDownServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
-        // /fileDown?fileid=1
+        // /fileDown?fileid=A877A0B1DBEC83C243CA3FE458A29DCB
         try (PrintWriter out = response.getWriter()) {
             JsonObject oResult = new JsonObject();
             oResult = CheckLogin.getInstance().isLogin(request, response);
             if (!oResult.get(Config.RESULT).getAsBoolean()) {
-                String fileid = request.getParameter("fileid");
-                if (TypeChange.getInstance().isNotNull(fileid)) {
+                String hash = request.getParameter("fileid");//文件hash
+                if (TypeChange.getInstance().isNotNull(hash)) {
                     oResult.addProperty(Config.RESULT, Boolean.FALSE);
                     oResult.addProperty(Config.MESSAGE, "文件ID不能为空");
                     out.print(oResult.toString());
@@ -58,8 +58,7 @@ public class fileDownServlet extends HttpServlet {
                     //当前用户ID
                     int id = oResult.get(Config.USERID).getAsInt();
                     oResult = null;
-                    int int_fileid = TypeChange.getInstance().stringToInt(fileid);
-                    oResult = SqlService.getInstance().getFileInfo(int_fileid);
+                    oResult = SqlService.getInstance().getFileInfo(hash);
                     if (!oResult.get(Config.RESULT).getAsBoolean() && oResult.get("status").getAsInt() == 1) {
                         String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator + oResult.get("targetname").getAsString();
                         File file = new File(currentFilePath);

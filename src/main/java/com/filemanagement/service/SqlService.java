@@ -1267,7 +1267,7 @@ public class SqlService {
     }
 
     //获取文件信息
-    public JsonObject getFileInfo(int fileid) {
+    public JsonObject getFileInfo(String hash) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -1275,8 +1275,8 @@ public class SqlService {
         request.addProperty(Config.RESULT, Boolean.TRUE);
         try {
             conn = ConfigManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT File.sourcename,File.targetname,File.mime,File.`status` FROM File WHERE id=?");
-            stmt.setInt(1, fileid);
+            stmt = conn.prepareStatement("SELECT File.sourcename,File.targetname,File.mime,File.`status` FROM File WHERE id>0 AND hash=?");
+            stmt.setString(1, hash);
             rs = stmt.executeQuery();
             if (rs.next()) {
                 request.addProperty("sourcename", rs.getString(1));

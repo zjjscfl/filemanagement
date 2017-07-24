@@ -14,4 +14,4 @@ getUUID
 
 file?action=delFile&fileid=1,2
 
-fileDown?fileid=1
+fileDown?fileid=A877A0B1DBEC83C243CA3FE458A29DCB
