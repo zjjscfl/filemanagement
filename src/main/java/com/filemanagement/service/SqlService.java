@@ -8,10 +8,12 @@ package com.filemanagement.service;
 import com.filemanagement.config.Config;
 import com.filemanagement.config.ConfigManager;
 import com.filemanagement.util.CodecHelper;
+import com.filemanagement.util.FileUtil;
 import com.filemanagement.util.Salt;
 import com.filemanagement.util.TypeChange;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -389,7 +391,6 @@ public class SqlService {
                                     request.addProperty(Config.RESULT, Boolean.TRUE);
                                     request.addProperty(Config.MESSAGE, "用户修改失败");
                                 }
-
                             }
                         }
                     }
@@ -564,7 +565,6 @@ public class SqlService {
                 ListArray.add(key);
                 getChildren(ListArray, key, list_map);
             }
-
         }
         return ListArray;
     }
@@ -1144,6 +1144,97 @@ public class SqlService {
                 conn = null;
             }
         } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+    //删除文件列表fileid=1,2,3...
+    public JsonObject delFile(String userid, String fileid) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            if (TypeChange.getInstance().isNotNull(userid)) {
+                request.addProperty(Config.MESSAGE, "用户ID不能为空");
+            } else if (TypeChange.getInstance().isNotNull(fileid)) {
+                request.addProperty(Config.MESSAGE, "文件ID不能为空");
+            } else {
+                int int_userid = TypeChange.getInstance().stringToInt(userid);
+                int totalsize = fileid.split(",").length;
+                List<String> list = new ArrayList<>();
+                String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + userid + File.separator;
+                conn = ConfigManager.getInstance().getConnection();
+                conn.setAutoCommit(false);
+                stmt = conn.prepareStatement("SELECT File.userid,File.targetname FROM File WHERE File.id IN (" + fileid + ")");
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    if (int_userid == rs.getInt(1)) {
+                        list.add(rs.getString(2));
+                    }
+                }
+                rs.close();
+                rs = null;
+                stmt.close();
+                stmt = null;
+                if (totalsize == list.size()) {
+                    stmt = conn.prepareStatement("UPDATE `File` SET `status`=?,lasttime=now() WHERE File.id IN (" + fileid + ")");
+                    stmt.setInt(1, -1);
+                    if (stmt.executeUpdate() == totalsize) {
+                        for (String tmp : list) {
+                            FileUtil.getInstance().deleteFile(currentFilePath + tmp);
+                        }
+                        request.addProperty(Config.RESULT, Boolean.FALSE);
+                        request.addProperty(Config.MESSAGE, "文件删除成功");
+                    } else {
+                        conn.rollback();
+                        request.addProperty(Config.MESSAGE, "文件删除数量不符，已退回操作");
+                    }
+                } else {
+                    request.addProperty(Config.MESSAGE, "请求删除的文件和用户可以删除文件不匹配");
+                }
+                list = null;
+            }
+            conn.commit();
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    conn.close();
+                } catch (SQLException ex1) {
+                    Log.log(Level.SEVERE, null, ex1);
+                }
+            }
             Log.log(Level.SEVERE, null, ex);
             request.addProperty(Config.MESSAGE, "发生错误,程序异常");
         } finally {

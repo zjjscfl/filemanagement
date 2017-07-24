@@ -57,6 +57,10 @@ public class fileServlet extends HttpServlet {
                     String pageSize = request.getParameter("pageSize");
                     String currentPage = request.getParameter("currentPage");
                     oResult = SqlService.getInstance().getFileList(id, pageSize, currentPage);
+                } else if ("delFile".equals(action)) {//删除用户文件
+                    // /file?action=delFile&fileid=1,2
+                    String fileid = request.getParameter("fileid");
+                    oResult = SqlService.getInstance().delFile(id, fileid);
                 }
             }
             out.print(oResult.toString());
