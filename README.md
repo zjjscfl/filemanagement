@@ -11,3 +11,5 @@ userManger?action=password&userid=12&pwd=123456
 userManger?action=add&name=admin13&space=100000
 
 getUUID
+
+file?action=delFile&fileid=1,2
