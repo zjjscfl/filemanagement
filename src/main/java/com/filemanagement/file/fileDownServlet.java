@@ -6,10 +6,18 @@
 package com.filemanagement.file;
 
 import com.filemanagement.config.Config;
+import com.filemanagement.config.ConfigManager;
 import com.filemanagement.service.SqlService;
 import com.filemanagement.util.CheckLogin;
+import com.filemanagement.util.TypeChange;
 import com.google.gson.JsonObject;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author ubuntu
  */
-public class fileServlet extends HttpServlet {
+public class fileDownServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -36,34 +44,50 @@ public class fileServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
-
+        // /fileDown?fileid=1
         try (PrintWriter out = response.getWriter()) {
             JsonObject oResult = new JsonObject();
             oResult = CheckLogin.getInstance().isLogin(request, response);
             if (!oResult.get(Config.RESULT).getAsBoolean()) {
-                String id = request.getParameter("id");//当前用户ID
-                if (id == null || id == "") {
-                    id = oResult.get(Config.USERID).getAsString();
+                String fileid = request.getParameter("fileid");
+                if (TypeChange.getInstance().isNotNull(fileid)) {
+                    oResult.addProperty(Config.RESULT, Boolean.FALSE);
+                    oResult.addProperty(Config.MESSAGE, "文件ID不能为空");
+                    out.print(oResult.toString());
+                } else {
+                    //当前用户ID
+                    int id = oResult.get(Config.USERID).getAsInt();
+                    oResult = null;
+                    int int_fileid = TypeChange.getInstance().stringToInt(fileid);
+                    oResult = SqlService.getInstance().getFileInfo(int_fileid);
+                    if (!oResult.get(Config.RESULT).getAsBoolean() && oResult.get("status").getAsInt() == 1) {
+                        String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator + oResult.get("targetname").getAsString();
+                        File file = new File(currentFilePath);
+                        if (file.exists()) {
+                            // 以流的形式下载文件。
+                            InputStream fis = new BufferedInputStream(new FileInputStream(currentFilePath));
+                            // 清空response
+                            response.reset();
+                            // 设置response的Header
+                            response.addHeader("Content-Disposition", "attachment;filename=" + new String(oResult.get("sourcename").getAsString().getBytes(), "ISO-8859-1"));
+                            response.addHeader("Content-Length", "" + file.length());
+                            response.setContentType(oResult.get("mime").getAsString());
+                            OutputStream toClient = new BufferedOutputStream(response.getOutputStream());
+                            byte[] buffer = new byte[1024 * 1024 * 4];
+                            int i = -1;
+                            while ((i = fis.read(buffer)) != -1) {
+                                toClient.write(buffer, 0, i);
+                            }
+                            fis.close();
+                            toClient.write(buffer);
+                            toClient.flush();
+                            toClient.close();
+                        }
+                    }
                 }
-                oResult = null;
-                String action = request.getParameter("action");
-                if ("getUserFileList".equals(action)) {//获取用户文件列表
-                    // /file?action=getUserFileList&pageSize=20&currentPage=1&id=
-                    String pageSize = request.getParameter("pageSize");
-                    String currentPage = request.getParameter("currentPage");
-                    oResult = SqlService.getInstance().getUserFileList(id, pageSize, currentPage);
-                } else if ("getFileList".equals(action)) {//获取用户文件列表
-                    // /file?action=getFileList&pageSize=20&currentPage=1&id=
-                    String pageSize = request.getParameter("pageSize");
-                    String currentPage = request.getParameter("currentPage");
-                    oResult = SqlService.getInstance().getFileList(id, pageSize, currentPage);
-                } else if ("delFile".equals(action)) {//删除用户文件
-                    // /file?action=delFile&fileid=1,2
-                    String fileid = request.getParameter("fileid");
-                    oResult = SqlService.getInstance().delFile(id, fileid);
-                }
+            } else {
+                out.print(oResult.toString());
             }
-            out.print(oResult.toString());
         }
     }
 
