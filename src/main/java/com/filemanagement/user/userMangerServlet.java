@@ -45,7 +45,6 @@ public class userMangerServlet extends HttpServlet {
                 if (id == null || id == "") {
                     id = oResult.get(Config.USERID).getAsString();
                 }
-                oResult = null;
                 String action = request.getParameter("action");
                 if ("add".equals(action)) {//添加用户
                     // /userManger?action=add&name=admin&space=500&id=0
@@ -68,6 +67,7 @@ public class userMangerServlet extends HttpServlet {
                     String pwd = request.getParameter("pwd");
                     oResult = SqlService.getInstance().password(id, userid, pwd);
                 } else {
+                    oResult = new JsonObject();
                     oResult.addProperty(Config.RESULT, Boolean.TRUE);
                     oResult.addProperty(Config.MESSAGE, "非法的请求");
                 }

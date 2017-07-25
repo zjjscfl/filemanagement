@@ -45,7 +45,7 @@ public class fileServlet extends HttpServlet {
                 if (id == null || id == "") {
                     id = oResult.get(Config.USERID).getAsString();
                 }
-                oResult = null;
+                oResult = new JsonObject();
                 String action = request.getParameter("action");
                 if ("getUserFileList".equals(action)) {//获取用户文件列表
                     // /file?action=getUserFileList&pageSize=20&currentPage=1&id=
