@@ -19,8 +19,8 @@ and open the template in the editor.
         <script src="js/index.js" type="text/javascript"></script>
     </head>
     <body>
-        <div class="syfmPage">
-            <div class="syfmHeader">
+        <div class="page">
+            <div class="header">
                 <dl>
                     <dt><a href="index.html">文件管理系统</a></dt>
                     <dd>
@@ -36,50 +36,23 @@ and open the template in the editor.
                     </dd>
                 </dl>
             </div>
-            <div class="syfmAside">
-                <ul class="syfmMenu">
+            <div class="aside">
+                <ul class="syfm-menu">
                     <li><a href="index.html"><em class="glyphicon glyphicon-file"></em><span>文件管理</span></a></li>
                     <li><a href="user.html"><em class="glyphicon glyphicon-user"></em><span>用户管理</span></a></li>
                 </ul>   
             </div>
-            <div class="syfmMain">
+            <div class="main">
                 <div class="toolbar">
                     <div class="funcList">
-                        <a class="btn btn-primary"><em class="glyphicon glyphicon-upload"></em>上传</a>
+                        <a class="btn btn-primary">上传</a>
                     </div>
-                    <!--                    <div class="searchBox">
-                                            <input class="form-control" type="text" placeholder="搜索您的文件"/>
-                                            <button class="btn btn-primary">搜索</button>
-                                        </div>-->
+<!--                    <div class="searchBox">
+                        <input class="form-control" type="text" placeholder="搜索您的文件"/>
+                        <button class="btn btn-primary">搜索</button>
+                    </div>-->
                 </div>
-                <div class="listHeader">
-                    <ul class="clearfix">
-                        <li class="listFileName">
-                            <input type="checkbox"/>
-                            <span>文件名</span>
-                        </li>
-                        <li class="listFileSize">
-                            <span>大小</span>
-                        </li>
-                        <li class="listFileLastTime">
-                            <span>修改日期</span>
-                        </li>
-                    </ul>
-                </div>
-                <div class="listBody">
-                    <ul class="clearfix">
-                        <li class="listFileName">
-                            <input type="checkbox"/>
-                            <span>文件名</span>
-                        </li>
-                        <li  class="listFileSize">
-                            <span>文件名</span>
-                        </li>
-                        <li  class="listFileLastTime">
-                            <span>文件名</span>
-                        </li>
-                    </ul>
-                </div>
+                <div class="list"></div>
             </div>
         </div>
     </body>

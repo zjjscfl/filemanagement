@@ -4,7 +4,144 @@ To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
 /* 
-    Created on : 2017-7-24, 14:50:07
+    Created on : 2017-7-24, 17:15:42
     Author     : kris
 */
 
+.syfmPage
+{
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #eff4f8;
+}
+
+.syfmHeader
+{
+    position: absolute;
+    height: 62px;
+    top:0;
+    left:0;
+    right: 0;
+    width: 100%;
+
+}
+
+.syfmHeader dl
+{
+    width: 100%;
+    height: 40px;
+    font-size: 12px;
+    margin-top: -20px;
+    margin-bottom: 0;
+    position: absolute;
+    z-index: 999;
+    top: 50%;
+    left: 0;
+}
+
+.syfmHeader dt
+{
+    width: 180px;
+    height: 32px;
+    margin: 4px 0;
+    vertical-align: middle;
+    margin-left: 20px;
+    float: left;
+}
+
+.syfmHeader dt a
+{
+    font-size: 24px;
+    line-height: 32px;
+}
+
+.syfmHeader dd
+{
+    width: auto;
+    height: 100%;
+    padding-right: 10px;
+    position: relative;
+    float: right;
+    color: #424e67;
+}
+
+#userMenuSpan
+{
+    display: inline-block;
+    line-height: 40px;
+    cursor: pointer;
+}
+
+.syfmAside
+{
+    position: absolute;
+    top:62px;
+    bottom: 0;
+    left:0;
+    width: 200px;
+    height: 100%;
+}
+
+.syfmMenu
+{
+   padding:10px 0 0 0;
+ 
+}
+
+.syfmMenu li
+{
+    list-style-type: none;
+}
+
+.syfmMenu li a
+{
+    display: block;
+    padding-left:20px;
+    line-height: 40px;
+    font-size: 14px;
+    height: 40px;
+}
+
+.syfmMenu li a:hover
+{
+    background-color: #e3e8eb;
+}
+
+.syfmMenu li a em
+{
+    margin-right:5px;
+}
+
+.syfmMain
+{
+    top:62px;
+    left: 200px;
+    bottom: 0px;
+    right: 10px;
+    background: #fff;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    position: absolute;
+}
+
+a
+{
+   text-decoration: none;
+}
+
+a:link
+{
+   text-decoration: none;
+}
+a:visited
+{
+   text-decoration: none;
+}
+a:hover
+{
+   text-decoration: none;
+}

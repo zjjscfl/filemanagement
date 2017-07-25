@@ -1,0 +1,68 @@
+
+.toolbar
+{
+    height: 54px;
+    padding: 10px 10px;
+}
+
+.funcList
+{
+
+}
+
+.listHeader
+{
+    border-bottom: 1px solid #f2f6fd;
+}
+
+.listHeader ul
+{
+    list-style-type: none;
+     margin: 0;
+    padding: 0 0 0 10px;
+}
+
+.listHeader ul li
+{
+    float: left;
+    line-height: 40px;
+}
+
+.listBody
+{
+
+}
+
+.listBody ul 
+{
+    padding: 0 0 0 10px;
+    margin: 0;
+    border-bottom: 1px solid #f2f6fd;
+    list-style-type: none;
+}
+
+.listBody ul li
+{
+    float: left;
+    line-height: 40px;
+}
+
+.listFileName
+{
+    width:60%;
+}
+
+.listFileSize
+{
+    width: 16%;
+}
+
+.listFileLastTime
+{
+    width: 23%;
+}
+
+.listHeader input[type="checkbox"], .listBody input[type="checkbox"]
+{
+    margin-right: 10px;
+}
