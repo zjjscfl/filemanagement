@@ -2,6 +2,8 @@ checkLogin
 
 login?username=admin&password=123456
 
+logout
+
 userManger?action=getList&id=0
 
 userManger?action=update&name=admin12&space=20&userid=2
