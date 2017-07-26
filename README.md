@@ -23,3 +23,7 @@ file?action=getUserFileList&pageSize=20&currentPage=1
 file?action=getFileList&pageSize=20&currentPage=1
 
 file?action=delFile&fileid=1,2
+
+getChunkedFileSize?fileName=name&fileSize=1000&uuid=4f14cdcb-ea15-49a7-8697-4b8a31b5b135&chunkedFileSize=10&fileHash=A877A0B1DBEC83C243CA3FE458A29DCB
+
+appendUploadServer?fileName=name&fileSize=1000&uuid=4f14cdcb-ea15-49a7-8697-4b8a31b5b135&chunkedFileSize=10&fileHash=A877A0B1DBEC83C243CA3FE458A29DCB
