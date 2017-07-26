@@ -9,9 +9,12 @@
     'use strict';
     var syfm = win.syfm || {};
     var pnotify = win.PNotify;
-
     syfm.apiUriRoot = "/filemanagement/";
-
+    syfm.user = {
+        USERID: 0,
+        USERNAME: "欢迎您",
+        USERSTATUS: 0
+    };
     //显示通知
     syfm.showNotify = function (type, msg) {
         pnotify.removeAll();
@@ -21,9 +24,7 @@
             type: type
         });
     };
-
     win.syfm = syfm;
-
     //初始化pnotify配置
     if (pnotify)
     {
@@ -43,14 +44,19 @@
             dataType: 'json',
             method: 'POST'
         }).done(function (data) {
-            var isLogin=false;
-            if(data&&typeof data.RESULT==='boolean'&&!data.RESULT)
+            var isLogin = false;
+            if (data && typeof data.RESULT === 'boolean' && !data.RESULT)
             {
-                isLogin=true;
+                syfm.user = {
+                    USERID: data.USERID,
+                    USERNAME: data.USERNAME,
+                    USERSTATUS: data.USERSTATUS
+                };
+                isLogin = true;
             }
-            if(!isLogin)
+            if (!isLogin)
             {
-                 location.href = syfm.apiUriRoot + 'login.html';
+                location.href = syfm.apiUriRoot + 'login.html';
             }
         }).fail(function () {
             location.href = syfm.apiUriRoot + 'login.html';
