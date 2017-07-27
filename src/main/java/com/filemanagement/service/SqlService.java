@@ -996,6 +996,7 @@ public class SqlService {
                         temp.addProperty("mime", rs.getString(6));
                         temp.addProperty("lasttime", rs.getString(7));
                         temp.addProperty("size", TypeChange.getInstance().autoChangeMB(rs.getInt(8)));
+                        temp.addProperty("status", rs.getInt(9));
                         ListArray.add(temp);
                         temp = null;
                         targetname = null;
@@ -1126,6 +1127,7 @@ public class SqlService {
                             temp.addProperty("mime", rs.getString(6));
                             temp.addProperty("lasttime", rs.getString(7));
                             temp.addProperty("size", TypeChange.getInstance().autoChangeMB(rs.getInt(8)));
+                            temp.addProperty("status", rs.getInt(9));
                             ListArray.add(temp);
                             temp = null;
                             targetname = null;
