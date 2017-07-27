@@ -95,7 +95,7 @@ public class TypeChange {
 
     //B转MB,有小数+1
     public int BToM(long value) {
-        return (int) Math.ceil(value / (1024 * 1024));
+        return (int) Math.ceil((double) value / (1024 * 1024));
     }
 
     //自动转换B为KB，MB，GB
