@@ -48,15 +48,17 @@ public class fileServlet extends HttpServlet {
                 oResult = new JsonObject();
                 String action = request.getParameter("action");
                 if ("getUserFileList".equals(action)) {//获取用户文件列表
-                    // /file?action=getUserFileList&pageSize=20&currentPage=1&id=
+                    // /file?action=getUserFileList&pageSize=20&currentPage=1&search=nd&id=
                     String pageSize = request.getParameter("pageSize");
                     String currentPage = request.getParameter("currentPage");
-                    oResult = SqlService.getInstance().getUserFileList(id, pageSize, currentPage);
+                    String search = request.getParameter("search");
+                    oResult = SqlService.getInstance().getUserFileList(id, pageSize, currentPage, search);
                 } else if ("getFileList".equals(action)) {//获取用户文件列表
-                    // /file?action=getFileList&pageSize=20&currentPage=1&id=
+                    // /file?action=getFileList&pageSize=20&currentPage=1&search=nd&id=
                     String pageSize = request.getParameter("pageSize");
                     String currentPage = request.getParameter("currentPage");
-                    oResult = SqlService.getInstance().getFileList(id, pageSize, currentPage);
+                    String search = request.getParameter("search");
+                    oResult = SqlService.getInstance().getFileList(id, pageSize, currentPage, search);
                 } else if ("delFile".equals(action)) {//删除用户文件
                     // /file?action=delFile&fileid=1,2
                     String fileid = request.getParameter("fileid");

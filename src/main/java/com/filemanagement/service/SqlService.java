@@ -932,7 +932,7 @@ public class SqlService {
     }
 
     //获取用户文件列表
-    public JsonObject getUserFileList(String userid, String str_pageSize, String str_currentPage) {
+    public JsonObject getUserFileList(String userid, String str_pageSize, String str_currentPage, String search) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -946,13 +946,17 @@ public class SqlService {
             } else if (TypeChange.getInstance().isNotNull(str_currentPage)) {
                 request.addProperty(Config.MESSAGE, "currentPage不能为空");
             } else {
+                String sql = "";
+                if (!TypeChange.getInstance().isNotNull(search)) {
+                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE '%" + search + "%')";
+                }
                 int totalSize = 0;
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
                 int pageSize = TypeChange.getInstance().stringToInt(str_pageSize);
                 int currentPage = TypeChange.getInstance().stringToInt(str_currentPage);
                 JsonArray ListArray = new JsonArray();
                 conn = ConfigManager.getInstance().getConnection();
-                stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File WHERE File.userid=? AND File.`status`>=?");
+                stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File WHERE File.userid=? AND File.`status`>=?" + sql);
                 stmt.setInt(1, int_userid);
                 stmt.setInt(2, 0);
                 rs = stmt.executeQuery();
@@ -978,7 +982,7 @@ public class SqlService {
                     int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
                     int limitRow = maxRow - startRow;
                     String targetname = null;
-                    stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status` FROM File WHERE File.userid=? AND File.`status`>=? ORDER BY File.lasttime DESC LIMIT ?,?");
+                    stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status` FROM File WHERE File.userid=? AND File.`status`>=? " + sql + "ORDER BY File.lasttime DESC LIMIT ?,?");
                     stmt.setInt(1, int_userid);
                     stmt.setInt(2, 0);
                     stmt.setInt(3, startRow);
@@ -1046,7 +1050,7 @@ public class SqlService {
     }
 
     //获取文件列表
-    public JsonObject getFileList(String userid, String str_pageSize, String str_currentPage) {
+    public JsonObject getFileList(String userid, String str_pageSize, String str_currentPage, String search) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -1060,6 +1064,10 @@ public class SqlService {
             } else if (TypeChange.getInstance().isNotNull(str_currentPage)) {
                 request.addProperty(Config.MESSAGE, "currentPage不能为空");
             } else {
+                String sql = "";
+                if (!TypeChange.getInstance().isNotNull(search)) {
+                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE '%" + search + "%')";
+                }
                 int totalSize = 0;
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
                 int pageSize = TypeChange.getInstance().stringToInt(str_pageSize);
@@ -1087,7 +1095,7 @@ public class SqlService {
                     request.addProperty(Config.MESSAGE, "用户ID不能为空");
                 } else {
                     idList = idList.substring(1, idList.length() - 1);
-                    stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")");
+                    stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")" + sql);
                     rs = stmt.executeQuery();
                     if (rs.next()) {
                         totalSize = rs.getInt(1);
@@ -1111,7 +1119,7 @@ public class SqlService {
                         int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
                         int limitRow = maxRow - startRow;
                         String targetname = null;
-                        stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`User`.`name`,`User`.parent FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ") ORDER BY File.lasttime DESC LIMIT ?,?");
+                        stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`User`.`name`,`User`.parent FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")" + sql + " ORDER BY File.lasttime DESC LIMIT ?,?");
                         stmt.setInt(1, startRow);
                         stmt.setInt(2, limitRow);
                         rs = stmt.executeQuery();

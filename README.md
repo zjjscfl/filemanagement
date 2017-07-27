@@ -18,9 +18,9 @@ file?action=delFile&fileid=1,2
 
 fileDown?fileid=A877A0B1DBEC83C243CA3FE458A29DCB
 
-file?action=getUserFileList&pageSize=20&currentPage=1
+file?action=getUserFileList&pageSize=20&currentPage=1&search=nd
 
-file?action=getFileList&pageSize=20&currentPage=1
+file?action=getFileList&pageSize=20&currentPage=1&search=nd
 
 file?action=delFile&fileid=1,2
 
