@@ -7,7 +7,12 @@
 
 .funcList
 {
+    float: left;
+}
 
+.searchBox
+{
+    float: right;
 }
 
 .listHeader
@@ -18,7 +23,7 @@
 .listHeader ul
 {
     list-style-type: none;
-     margin: 0;
+    margin: 0;
     padding: 0 0 0 10px;
 }
 
@@ -30,10 +35,16 @@
 
 .listBody
 {
-
+    overflow: hidden;
+    overflow-y: auto;
 }
 
-.listBody ul 
+.listWrap
+{
+    height: auto;
+}
+
+.listWrap ul 
 {
     padding: 0 0 0 10px;
     margin: 0;
@@ -41,7 +52,12 @@
     list-style-type: none;
 }
 
-.listBody ul li
+.listWrap ul.listHover,.listWrap ul.listActive
+{
+    background: #f6faff;
+}
+
+.listWrap ul li
 {
     float: left;
     line-height: 40px;
@@ -49,20 +65,33 @@
 
 .listFileName
 {
-    width:60%;
+    width:50%;
+}
+
+.listFileName input[type="checkbox"]
+{
+    margin-top: 0;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+.listFileName span
+{
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .listFileSize
 {
-    width: 16%;
+    width: 10%;
 }
 
 .listFileLastTime
 {
-    width: 23%;
+    width: 20%;
+}
+.listFileStatus
+{
+    width:20%;
 }
 
-.listHeader input[type="checkbox"], .listBody input[type="checkbox"]
-{
-    margin-right: 10px;
-}

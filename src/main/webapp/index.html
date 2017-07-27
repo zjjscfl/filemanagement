@@ -45,17 +45,18 @@ and open the template in the editor.
             <div class="syfmMain">
                 <div class="toolbar">
                     <div class="funcList">
-                        <a class="btn btn-primary"><em class="glyphicon glyphicon-upload"></em>上传</a>
+                        <a class="btn btn-primary">上传</a>
+                        <a class="btn btn-primary">刷新</a>
                     </div>
-                    <!--                    <div class="searchBox">
-                                            <input class="form-control" type="text" placeholder="搜索您的文件"/>
-                                            <button class="btn btn-primary">搜索</button>
-                                        </div>-->
+                    <div class="searchBox form-inline">
+                        <input class="form-control" type="text" placeholder="搜索您的文件"/>
+                        <button class="btn btn-primary">搜索</button>
+                    </div>
                 </div>
                 <div class="listHeader">
                     <ul class="clearfix">
                         <li class="listFileName">
-                            <input type="checkbox"/>
+                            <input type="checkbox" id="selectBtn"/>
                             <span>文件名</span>
                         </li>
                         <li class="listFileSize">
@@ -67,18 +68,8 @@ and open the template in the editor.
                     </ul>
                 </div>
                 <div class="listBody">
-                    <ul class="clearfix">
-                        <li class="listFileName">
-                            <input type="checkbox"/>
-                            <span>文件名</span>
-                        </li>
-                        <li  class="listFileSize">
-                            <span>文件名</span>
-                        </li>
-                        <li  class="listFileLastTime">
-                            <span>文件名</span>
-                        </li>
-                    </ul>
+                    <div class="listWrap" id="listBox">
+                    </div>
                 </div>
             </div>
         </div>
