@@ -1,5 +1,5 @@
 
-.toolbar
+.toolBar
 {
     height: 54px;
     padding: 10px 10px;
@@ -8,6 +8,39 @@
 .funcList
 {
     float: left;
+}
+
+
+.uploadBox
+{
+    position: relative;
+    display: inline-block;
+    width: 54px;
+    height: 34px;
+}
+.uploadBtn
+{
+    top: 0px;
+    left: 0px;
+    position: absolute;
+    cursor: pointer;
+    width: 54px;
+    height: 34px;
+    overflow: hidden;
+    background-color: rgb(255, 255, 255);
+    zoom: 1;
+    opacity: 0;
+    z-index: 1;
+}
+
+.uploadBtn input[type='file']
+{
+    font-family: Times;
+    position: absolute;
+    cursor: pointer;
+    width: 2000px;
+    height: 600px;
+    right: 0px;
 }
 
 .searchBox
@@ -95,3 +128,18 @@
     width:20%;
 }
 
+
+.uploadMsg
+{
+    position: absolute;
+    width: 500px;
+    height: 62px;
+    overflow: hidden;
+    left: 50%;
+    margin-left: -250px;
+    top:0;
+    border:1px solid #ccc;
+    background-color: #fff;
+    line-height: 60px;
+    text-align: center;
+}

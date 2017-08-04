@@ -22,9 +22,9 @@ module.exports = function (grunt) {
                     }
                 ]
             },
-            pnotify:{
-                files:[
-                   {
+            pnotify: {
+                files: [
+                    {
                         expand: true,
                         cwd: 'bower_components/pnotify/dist/',
                         src: 'pnotify.css',
@@ -37,6 +37,26 @@ module.exports = function (grunt) {
                         dest: 'src/main/webapp/lib/pnotify/'
                     }
                 ]
+            },
+            jsSHA: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'bower_components/jsSHA/src/',
+                        src: 'sha1.js',
+                        dest: 'src/main/webapp/lib/jssha/'
+                    }
+                ]
+            },
+            uuid:{
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'bower_components/uuid-js/lib/',
+                        src: 'uuid.js',
+                        dest: 'src/main/webapp/lib/uuid/'
+                    }
+                ]
             }
         }
     });
@@ -44,6 +64,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
 
-    grunt.registerTask('lib', ['clean','copy']);
+    grunt.registerTask('lib', ['clean', 'copy']);
 
 };
