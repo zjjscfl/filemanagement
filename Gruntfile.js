@@ -38,17 +38,17 @@ module.exports = function (grunt) {
                     }
                 ]
             },
-            jsSHA: {
+            md5: {
                 files: [
                     {
                         expand: true,
-                        cwd: 'bower_components/jsSHA/src/',
-                        src: 'sha1.js',
-                        dest: 'src/main/webapp/lib/jssha/'
+                        cwd: 'bower_components/js-md5/build/',
+                        src: 'md5.min.js',
+                        dest: 'src/main/webapp/lib/md5/'
                     }
                 ]
             },
-            uuid:{
+            uuid: {
                 files: [
                     {
                         expand: true,

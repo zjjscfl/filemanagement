@@ -10,15 +10,28 @@
     var userNameShow,
             userLogout,
             selectBtn,
+            refreshBtn,
+            searchTxt,
+            searchBtn,
             uploadInput,
+            getOpt = {
+                action: 'getFileList',
+                pageSize: 100,
+                currentPage: 1,
+                search: ''
+            },
             uploadOpt = {
                 total: 0,
                 current: 0,
                 success: 0,
                 error: 0,
                 paragraph: 1024 * 1024 * 2,
-                state: 0
+                state: 0,
+                uuid: '',
+                md5: ''
             },
+            blob,
+            uploadMsg,
             listBox;
 
     function initTarget()
@@ -27,7 +40,11 @@
         userNameShow.html(syfm.user.USERNAME);
         userLogout = $("#userLogout");
         selectBtn = $("#selectBtn");
+        refreshBtn = $("#refreshBtn");
+        searchTxt = $("#searchTxt");
+        searchBtn = $("#searchBtn");
         uploadInput = $("#uploadInput");
+        uploadMsg = $(".uploadMsg");
         listBox = $("#listBox");
     }
 
@@ -59,50 +76,72 @@
             if (files.length > 0)
             {
                 uploadOpt.total = files.length;
-                for (i = 0; i < files.length; i++) {
-                    file = files[i];
-                    uploadFile(file, i);
-                }
+                uploadOpt.state = 1;
+
+                uploadFile(files, i);
             }
         });
 
+        refreshBtn.click(function () {
+            refreshFileList();
+        });
+
+        searchBtn.click(function () {
+            getOpt.search = searchTxt.val();
+            searchFileList();
+        });
 
         window.onresize = function () {
             setListHeight();
         };
     }
 
-    function uploadFile(file, i)
+    function uploadFile(files, i, def)
     {
         var startSize = 0;
         var endSize = 0;
+        var file = files[i];
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+            var uuid = UUIDjs.create().hex;
+            var md5hash = md5(evt.target.result);
 
-        //获取当前文件已经上传大小
-        jQuery.post(syfm.apiUriRoot + "getChunkedFileSize", {
-            "fileName": encodeURIComponent(file.name),
-            "fileSize": file.size,
-            "uuid": UUIDjs.create().hex,
-            "chunkedFileSize": "chunkedFileSize",
-            "fileHash": "A877A0B1DBEC83C243CA3FE458A29DCB"
-        }, function (data) {
-            if (data !== -1) {
-                endSize = Number(data);
-            }
-            uploadFileAction(file, startSize, endSize, i);
+            uploadOpt.uuid = uuid;
+            uploadOpt.md5 = md5hash;
+            uploadOpt.current = i;
 
-        });
+            //获取当前文件已经上传大小
+            $.post(syfm.apiUriRoot + "getChunkedFileSize", {
+                "fileName": encodeURIComponent(file.name),
+                "fileSize": file.size,
+                "uuid": uuid,
+                "chunkedFileSize": "chunkedFileSize",
+                "fileHash": md5hash
+            }, function (data) {
+                if (data !== -1) {
+                    endSize = Number(data);
+                }
+                uploadFileAction(files, startSize, endSize, i);
+
+            });
+        };
+        reader.readAsArrayBuffer(file);
+
+
     }
 
 
     /**
      * 分片上传文件
      */
-    function uploadFileAction(file, startSize, endSize, i) {
+    function uploadFileAction(files, startSize, endSize, i) {
         var reader = new FileReader();
+        var file = files[i];
         reader.onload = function (evt) {
             // 构造 xmlHttpRequest 对象，发送文件 Binary 数据
             var xhr = new XMLHttpRequest();
             xhr.sendAsBinary = function (text) {
+
                 var data = new ArrayBuffer(text.length);
                 var ui8a = new Uint8Array(data, 0);
                 for (var i = 0; i < text.length; i++)
@@ -117,13 +156,14 @@
                         //纯文本数据的接受方法   
                         var message = xhr.responseText;
                         message = Number(message);
-                        uploadProgress(file, startSize, message, i);
+                        uploadProgress(files, startSize, message, i);
                     } else {
-                        msg.innerHTML = "上传出错，服务器相应错误！";
+                        uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，文件上传错误。');
+                        uploadMsg.show();
                     }
                 }
             };//创建回调方法
-            xhr.open("POST",syfm.apiUriRoot+"appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=4f14cdcb-ea15-49a7-8697-4b8a31b5b135" + "&fileHash=A877A0B1DBEC83C243CA3FE458A29DCB",
+            xhr.open("POST", syfm.apiUriRoot + "appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=" + uploadOpt.uuid + "&fileHash=" + uploadOpt.md5,
                     false);
             xhr.overrideMimeType("application/octet-stream;charset=utf-8");
             xhr.sendAsBinary(evt.target.result);
@@ -131,10 +171,10 @@
         if (endSize < file.size) {
             //处理文件发送（字节）
             startSize = endSize;
-            if (paragraph > (file.size - endSize)) {
+            if (uploadOpt.paragraph > (file.size - endSize)) {
                 endSize = file.size;
             } else {
-                endSize += paragraph;
+                endSize += uploadOpt.paragraph;
             }
             if (file.webkitSlice) {
                 //webkit浏览器
@@ -143,25 +183,51 @@
                 blob = file.slice(startSize, endSize);
             reader.readAsBinaryString(blob);
         } else {
-            document.getElementById('progressNumber' + i).innerHTML = '100%';
+            uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，100%。');
+            uploadMsg.show();
+            setTimeout(function () {
+                if (i < files.length - 1)
+                {
+                    i++;
+                    uploadFile(files, i);
+                } else
+                {
+                    uploadMsg.hide();
+                    refreshFileList();
+                }
+            }, 1000);
         }
     }
 
 //显示处理进程
-    function uploadProgress(file, startSize, uploadLen, i) {
+    function uploadProgress(files, startSize, uploadLen, i) {
+        var file = files[i];
         var percentComplete = Math.round(uploadLen * 100 / file.size);
-        document.getElementById('progressNumber' + i).innerHTML = percentComplete.toString() + '%';
+        uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，' + percentComplete + '%');
+        uploadMsg.show();
         //续传
-        if (uploadState == 1) {
-            uploadFileAction(file, startSize, uploadLen, i);
+        if (uploadOpt.state === 1) {
+            uploadFileAction(files, startSize, uploadLen, i);
         }
+    }
+
+    function formatFileSize(size)
+    {
+        var fileSize = 0;
+        if (size > 1024 * 1024)
+        {
+            fileSize = (Math.round(size * 100 / (1024 * 1024)) / 100).toString() + 'MB';
+        } else {
+            fileSize = (Math.round(size * 100 / 1024) / 100).toString() + 'KB';
+        }
+        return fileSize;
     }
 
     /*
      暂停上传
      */
     function pauseUpload() {
-        uploadState = 2;
+        uploadOpt.state = 2;
     }
 
 
@@ -179,11 +245,18 @@
 
     function getFileList()
     {
-        return $.getJSON(syfm.apiUriRoot + 'file', {
-            action: 'getUserFileList',
-            pageSize: 20,
-            currentPage: 1
-        });
+        return $.getJSON(syfm.apiUriRoot + 'file', getOpt);
+    }
+
+    function refreshFileList()
+    {
+        showFileList();
+    }
+
+
+    function searchFileList()
+    {
+        showFileList();
     }
 
     function showFileList()
@@ -194,6 +267,7 @@
                 if (!data.RESULT)
                 {
                     listBox.html('');
+                    selectBtn.prop('checked', false);
                     $.each(data.ListArray, function (idx, item) {
                         showFileItem(item);
                     });
