@@ -14,6 +14,11 @@
             searchTxt,
             searchBtn,
             uploadInput,
+            actionList,
+            goonInputBox,
+            goonInput,
+            downBtn,
+            delBtn,
             getOpt = {
                 action: 'getFileList',
                 pageSize: 100,
@@ -41,6 +46,11 @@
         userLogout = $("#userLogout");
         selectBtn = $("#selectBtn");
         refreshBtn = $("#refreshBtn");
+        actionList = $("#actionList");
+        goonInputBox = $("#goonInputBox");
+        goonInput = $("#goonInput");
+        downBtn = $("#downBtn");
+        delBtn = $("#delBtn");
         searchTxt = $("#searchTxt");
         searchBtn = $("#searchBtn");
         uploadInput = $("#uploadInput");
@@ -57,13 +67,36 @@
         });
 
         selectBtn.click(function () {
-
+            var tagList = $("ul", listBox), firstTag, file;
             if (this.checked)
             {
-                $("ul", listBox).addClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', true);
+                if (tagList.length > 0)
+                {
+                    tagList.addClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', true);
+                    actionList.show();
+                    if (tagList.length === 1)
+                    {
+                        file = tagList.data("file");
+                        if (file.status === 0)
+                        {
+                            goonInputBox.show();
+                            downBtn.hide();
+                        } else if (file.status === 1)
+                        {
+                            downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.hash);
+                            downBtn.show();
+                            goonInputBox.hide();
+                        }
+                    } else
+                    {
+                        goonInputBox.hide();
+                        downBtn.hide();
+                    }
+                }
             } else
             {
-                $("ul", listBox).removeClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', false);
+                tagList.removeClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', false);
+                actionList.hide();
             }
         });
 
@@ -77,13 +110,50 @@
             {
                 uploadOpt.total = files.length;
                 uploadOpt.state = 1;
-
                 uploadFile(files, i);
             }
         });
 
         refreshBtn.click(function () {
             refreshFileList();
+        });
+
+
+        delBtn.click(function () {
+            var selectList = [];
+            $('ul .listFileName input[type="checkbox"]', listBox).each(function (idx, item) {
+                var file = $(item).closest("ul").data("file");
+                if (this.checked)
+                {
+                    selectList.push(file.id);
+                }
+            });
+            if (selectList.length === 0)
+            {
+                syfm.showNotify('error', "请至少选择一个文件。");
+                return;
+            }
+            $.post(syfm.apiUriRoot + 'file', {
+                action: 'delFile',
+                fileid: selectList.join(',')
+            }).then(function (data) {
+                if (data && typeof data.RESULT === 'boolean')
+                {
+                    if (!data.RESULT)
+                    {
+                        syfm.showNotify('success', data.MESSAGE);
+                        refreshFileList();
+                    } else
+                    {
+                        syfm.showNotify('error', data.MESSAGE);
+                    }
+                } else
+                {
+                    syfm.showNotify('error', "服务器响应异常。");
+                }
+            }, function () {
+                syfm.showNotify('error', "服务器响应异常。");
+            });
         });
 
         searchBtn.click(function () {
@@ -193,6 +263,7 @@
                 } else
                 {
                     uploadMsg.hide();
+                    uploadOpt.state = 0;
                     refreshFileList();
                 }
             }, 1000);
@@ -268,6 +339,7 @@
                 {
                     listBox.html('');
                     selectBtn.prop('checked', false);
+                    actionList.hide();
                     $.each(data.ListArray, function (idx, item) {
                         showFileItem(item);
                     });
@@ -275,13 +347,30 @@
                         $(this).addClass('listHover');
                     }).mouseleave(function () {
                         $(this).removeClass('listHover');
+                    }).each(function (idx, item) {
+                        var file = data.ListArray[idx];
+                        $(item).data("file", file);
+                        if (file.status === -1)
+                        {
+                            $(item).hide();
+                            $(item).addClass("file-delete");
+                        } else if (file.status === 0)
+                        {
+                            $(item).addClass("file-init");
+                        } else if (file.status === 1)
+                        {
+                            $(item).addClass("file-normal");
+                        }
                     });
                     $('ul .listFileName input[type="checkbox"]', listBox).click(function () {
-                        var grepArray;
+                        var grepArray, tagList, itemBox, file;
+                        itemBox = $(this).closest('ul');
+                        file = itemBox.data("file");
+                        tagList = $('ul .listFileName input[type="checkbox"]', listBox);
                         if (this.checked)
                         {
-                            $(this).closest('ul').addClass('listActive');
-                            grepArray = $.grep($('ul .listFileName input[type="checkbox"]', listBox), function (val) {
+                            itemBox.addClass('listActive');
+                            grepArray = $.grep(tagList, function (val) {
                                 if (!val.checked)
                                 {
                                     return true;
@@ -290,10 +379,57 @@
                             if (grepArray.length === 0)
                             {
                                 selectBtn.prop('checked', true);
+                            } else if (grepArray.length === tagList.length - 1)
+                            {
+                                if (file.status === 0)
+                                {
+                                    goonInputBox.show();
+                                    downBtn.hide();
+                                } else if (file.status === 1)
+                                {
+                                    downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.hash);
+                                    downBtn.show();
+                                    goonInputBox.hide();
+                                }
+                            } else
+                            {
+                                goonInputBox.hide();
+                                downBtn.hide();
                             }
+                            actionList.show();
                         } else
                         {
                             $(this).closest('ul').removeClass('listActive');
+                            grepArray = $.grep(tagList, function (val) {
+                                if (val.checked)
+                                {
+                                    return true;
+                                }
+                            });
+                            if (grepArray.length === 0)
+                            {
+                                actionList.hide();
+                            } else
+                            {
+                                actionList.show();
+                                if (grepArray.length === 1)
+                                {
+                                    if (file.status === 0)
+                                    {
+                                        goonInputBox.show();
+                                        downBtn.hide();
+                                    } else if (file.status === 1)
+                                    {
+                                        downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.hash);
+                                        downBtn.show();
+                                        goonInputBox.hide();
+                                    }
+                                } else
+                                {
+                                    goonInputBox.hide();
+                                    downBtn.hide();
+                                }
+                            }
                             selectBtn.prop('checked', false);
                         }
                     });
