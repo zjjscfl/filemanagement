@@ -104,7 +104,7 @@ public class appendUploadServerServlet extends HttpServlet {
                     // 整个文件上传完成,修改文件后缀
                     if (currentFileLength == totalSize) {
                         //更改文件状态
-                        oResult = SqlService.getInstance().updateFile(fileHash, 1);
+                        oResult = SqlService.getInstance().updateFile(fileHash, 1, id, targetname);
                     }
                     out.print(currentFileLength);
                 } else {

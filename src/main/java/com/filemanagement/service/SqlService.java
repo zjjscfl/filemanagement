@@ -934,15 +934,17 @@ public class SqlService {
     }
 
     //添加文件
-    public JsonObject updateFile(String hash, int status) {
+    public JsonObject updateFile(String hash, int status, int userid, String targetname) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
             conn = ConfigManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("UPDATE `File` SET File.`status`=? WHERE File.`hash`=?");
+            stmt = conn.prepareStatement("UPDATE `File` SET File.`status`=? WHERE File.`hash`=? AND File.userid=? AND File.targetname=?");
             stmt.setInt(1, status);
             stmt.setString(2, hash);
+            stmt.setInt(3, userid);
+            stmt.setString(4, targetname);
             if (stmt.executeUpdate() == 1) {
                 request.addProperty(Config.RESULT, Boolean.FALSE);
                 request.addProperty(Config.MESSAGE, "上传文件成功");
