@@ -66,6 +66,9 @@ public class userMangerServlet extends HttpServlet {
                     String userid = request.getParameter("userid");//要修改的用户ID
                     String pwd = request.getParameter("pwd");
                     oResult = SqlService.getInstance().password(id, userid, pwd);
+                } else if ("getUser".equals(action)) {//获取用户层级列表根据上级ID
+                    //userManger?action=getUser&id=1
+                    oResult = SqlService.getInstance().getUser(id);
                 } else {
                     oResult = new JsonObject();
                     oResult.addProperty(Config.RESULT, Boolean.TRUE);

@@ -55,10 +55,12 @@ public class fileDownServlet extends HttpServlet {
                     oResult.addProperty(Config.MESSAGE, "文件ID不能为空");
                     out.print(oResult.toString());
                 } else {
-                    //当前用户ID
-                    int id = oResult.get(Config.USERID).getAsInt();
+                    String id = request.getParameter("userid");//当前用户ID
+                    if (id == null || id == "") {
+                        id = oResult.get(Config.USERID).getAsString();
+                    }
                     oResult = null;
-                    oResult = SqlService.getInstance().getFileInfo(hash);
+                    oResult = SqlService.getInstance().getFileInfo(hash, TypeChange.getInstance().stringToInt(id));
                     if (!oResult.get(Config.RESULT).getAsBoolean() && oResult.get("status").getAsInt() == 1) {
                         String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator + oResult.get("targetname").getAsString();
                         File file = new File(currentFilePath);

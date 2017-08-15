@@ -456,7 +456,6 @@ public class SqlService {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        request.addProperty(Config.RESULT, Boolean.TRUE);
         try {
             if (TypeChange.getInstance().isNotNull(parentId)) {
                 request.addProperty(Config.MESSAGE, "上级ID不能为空");
@@ -489,14 +488,79 @@ public class SqlService {
                 stmt.close();
                 stmt = null;
                 ListArray = getChildren(int_parent, temp_map, list_map);
-                if (ListArray.size() > 0) {
-                    request.addProperty(Config.RESULT, Boolean.FALSE);
-                }
+                request.addProperty(Config.RESULT, Boolean.FALSE);
                 request.add("userList", ListArray);
                 conn.close();
                 conn = null;
                 list_map = null;
                 temp_map = null;
+            }
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.RESULT, Boolean.TRUE);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+    //获取用户信息
+    public JsonObject getUser(String userid) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+            if (TypeChange.getInstance().isNotNull(userid)) {
+                request.addProperty(Config.MESSAGE, "用户ID不能为空");
+            } else {
+                conn = ConfigManager.getInstance().getConnection();
+                stmt = conn.prepareStatement("SELECT `User`.id,`User`.`name`,`User`.limitspace,`User`.space,`User`.parent,`User`.`status` FROM `User` WHERE id=" + userid);
+                rs = stmt.executeQuery();
+                if (rs.next()) {
+                    JsonObject temp = new JsonObject();
+                    temp.addProperty("id", rs.getInt(1));
+                    temp.addProperty("name", rs.getString(2));
+                    temp.addProperty("limitspace", TypeChange.getInstance().autoChangeMB(rs.getInt(3)));
+                    temp.addProperty("space", TypeChange.getInstance().autoChangeMB(rs.getInt(4)));
+                    temp.addProperty("parent", rs.getInt(5));
+                    temp.addProperty("status", rs.getInt(6));
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+                    request.add("user", temp);
+                } else {
+                    request.addProperty(Config.MESSAGE, "未获到数据,用户不存在");
+                }
+                rs.close();
+                rs = null;
+                stmt.close();
+                stmt = null;
+                conn.close();
+                conn = null;
             }
         } catch (SQLException ex) {
             Log.log(Level.SEVERE, null, ex);
@@ -1216,9 +1280,9 @@ public class SqlService {
                 stmt.close();
                 stmt = null;
                 if (totalsize == list.size()) {
-                    stmt = conn.prepareStatement("UPDATE `File` SET `status`=?,lasttime=now() WHERE File.id IN (" + fileid + ")");
+                    stmt = conn.prepareStatement("UPDATE `File`,`User` SET `File`.`status`=?,`File`.lasttime=now(),`User`.limitspace=`User`.limitspace+`File`.size WHERE `User`.id=`File`.userid AND File.id IN (" + fileid + ")");
                     stmt.setInt(1, -1);
-                    if (stmt.executeUpdate() == totalsize) {
+                    if (stmt.executeUpdate() > 0) {
                         for (String tmp : list) {
                             FileUtil.getInstance().deleteFile(currentFilePath + tmp);
                         }
@@ -1226,7 +1290,7 @@ public class SqlService {
                         request.addProperty(Config.MESSAGE, "文件删除成功");
                     } else {
                         conn.rollback();
-                        request.addProperty(Config.MESSAGE, "文件删除数量不符，已退回操作");
+                        request.addProperty(Config.MESSAGE, "已退回操作");
                     }
                 } else {
                     request.addProperty(Config.MESSAGE, "请求删除的文件和用户可以删除文件不匹配");
@@ -1277,7 +1341,7 @@ public class SqlService {
     }
 
     //获取文件信息
-    public JsonObject getFileInfo(String hash) {
+    public JsonObject getFileInfo(String hash, int userid) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -1285,8 +1349,9 @@ public class SqlService {
         request.addProperty(Config.RESULT, Boolean.TRUE);
         try {
             conn = ConfigManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT File.sourcename,File.targetname,File.mime,File.`status` FROM File WHERE id>0 AND hash=?");
-            stmt.setString(1, hash);
+            stmt = conn.prepareStatement("SELECT File.sourcename,File.targetname,File.mime,File.`status` FROM File WHERE File.`status`=? AND userid=? AND targetname like '" + hash + "%'");
+            stmt.setInt(1, 1);
+            stmt.setInt(2, userid);
             rs = stmt.executeQuery();
             if (rs.next()) {
                 request.addProperty("sourcename", rs.getString(1));

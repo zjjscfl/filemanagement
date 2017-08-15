@@ -12,11 +12,13 @@ userManger?action=password&userid=12&pwd=123456
 
 userManger?action=add&name=admin13&space=100000
 
+userManger?action=getUser
+
 getUUID
 
 file?action=delFile&fileid=1,2
 
-fileDown?fileid=A877A0B1DBEC83C243CA3FE458A29DCB
+fileDown?fileid=A877A0B1DBEC83C243CA3FE458A29DCB&userid=1
 
 file?action=getUserFileList&pageSize=20&currentPage=1&search=nd
 
