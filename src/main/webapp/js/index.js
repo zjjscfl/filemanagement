@@ -387,7 +387,7 @@
                                     downBtn.hide();
                                 } else if (file.status === 1)
                                 {
-                                    downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.hash);
+                                    downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid+"&userid="+file.userid);
                                     downBtn.show();
                                     goonInputBox.hide();
                                 }
@@ -420,7 +420,7 @@
                                         downBtn.hide();
                                     } else if (file.status === 1)
                                     {
-                                        downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.hash);
+                                       downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid+"&userid="+file.userid);
                                         downBtn.show();
                                         goonInputBox.hide();
                                     }
