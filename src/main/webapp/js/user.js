@@ -288,6 +288,7 @@
 
     function refreshUserList()
     {
+        syfm.getUser();
         showUserList();
     }
 
@@ -417,6 +418,7 @@
         initTarget();
         setListHeight();
         initAction();
+        syfm.getUser();
         initUserList();
     });
 })();

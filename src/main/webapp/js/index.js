@@ -321,6 +321,7 @@
 
     function refreshFileList()
     {
+        syfm.getUser();
         showFileList();
     }
 
@@ -482,6 +483,7 @@
         initTarget();
         setListHeight();
         initAction();
+        syfm.getUser();
         initFileList();
     });
 })();
