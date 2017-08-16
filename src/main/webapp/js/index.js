@@ -483,6 +483,7 @@
         setListHeight();
         initAction();
         syfm.getUser();
+        syfm.initPwd();
         initFileList();
     });
 })();

@@ -87,6 +87,8 @@
                 actionList.hide();
             }
         });
+        
+        
 
         addBtn.click(function () {
             addModal.modal('show');
@@ -419,6 +421,7 @@
         setListHeight();
         initAction();
         syfm.getUser();
+        syfm.initPwd();
         initUserList();
     });
 })();
