@@ -1014,7 +1014,7 @@ public class SqlService {
             } else {
                 String sql = "";
                 if (!TypeChange.getInstance().isNotNull(search)) {
-                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE '%" + search + "%')";
+                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE binary '%" + search + "%')";
                 }
                 int totalSize = 0;
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
@@ -1132,7 +1132,9 @@ public class SqlService {
             } else {
                 String sql = "";
                 if (!TypeChange.getInstance().isNotNull(search)) {
-                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE '%" + search + "%')";
+                    sql = " AND (File.sourcename LIKE '%" + search + "%' OR File.lasttime LIKE  binary '%" + search + "%')";
+                } else {
+                    sql = " AND File.status>=0";
                 }
                 int totalSize = 0;
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
@@ -1161,7 +1163,7 @@ public class SqlService {
                     request.addProperty(Config.MESSAGE, "用户ID不能为空");
                 } else {
                     idList = idList.substring(1, idList.length() - 1);
-                    stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ") AND File.status>=0" + sql);
+                    stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")" + sql);
                     rs = stmt.executeQuery();
                     if (rs.next()) {
                         totalSize = rs.getInt(1);
@@ -1185,7 +1187,7 @@ public class SqlService {
                         int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
                         int limitRow = maxRow - startRow;
                         String targetname = null;
-                        stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`User`.`name`,`User`.parent FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ") AND File.status>=0" + sql + " ORDER BY File.lasttime DESC LIMIT ?,?");
+                        stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`User`.`name`,`User`.parent FROM File ,`User` WHERE  File.userid = `User`.id AND `User`.id in (" + idList + ")" + sql + " ORDER BY File.lasttime DESC LIMIT ?,?");
                         stmt.setInt(1, startRow);
                         stmt.setInt(2, limitRow);
                         rs = stmt.executeQuery();
