@@ -83,7 +83,7 @@
                             downBtn.hide();
                         } else if (file.status === 1)
                         {
-                            downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid+"&userid="+file.userid);
+                            downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid + "&userid=" + file.userid);
                             downBtn.show();
                             goonInputBox.hide();
                         }
@@ -166,7 +166,7 @@
         };
     }
 
-    function uploadFile(files, i, def)
+    function uploadFile(files, i)
     {
         var startSize = 0;
         var endSize = 0;
@@ -188,7 +188,7 @@
                 "chunkedFileSize": "chunkedFileSize",
                 "fileHash": md5hash
             }, function (data) {
-                if (data !== -1) {
+                if (data !== '-1') {
                     endSize = Number(data);
                 }
                 uploadFileAction(files, startSize, endSize, i);
@@ -196,8 +196,6 @@
             });
         };
         reader.readAsArrayBuffer(file);
-
-
     }
 
 
@@ -228,7 +226,7 @@
                         message = Number(message);
                         uploadProgress(files, startSize, message, i);
                     } else {
-                        uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，文件上传错误。');
+                        uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，文件上传错误');
                         uploadMsg.show();
                     }
                 }
@@ -250,10 +248,12 @@
                 //webkit浏览器
                 blob = file.webkitSlice(startSize, endSize);
             } else
+            {
                 blob = file.slice(startSize, endSize);
+            }
             reader.readAsBinaryString(blob);
         } else {
-            uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，100%。');
+            uploadMsg.html('上传：' + (uploadOpt.current + 1) + '/' + uploadOpt.total + ' ，当前上传文件：' + file.name + '，' + formatFileSize(file.size) + '，100%');
             uploadMsg.show();
             setTimeout(function () {
                 if (i < files.length - 1)
@@ -353,7 +353,6 @@
                         $(item).data("file", file);
                         if (file.status === -1)
                         {
-                            $(item).hide();
                             $(item).addClass("file-delete");
                         } else if (file.status === 0)
                         {
@@ -388,7 +387,7 @@
                                     downBtn.hide();
                                 } else if (file.status === 1)
                                 {
-                                    downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid+"&userid="+file.userid);
+                                    downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid + "&userid=" + file.userid);
                                     downBtn.show();
                                     goonInputBox.hide();
                                 }
@@ -421,7 +420,7 @@
                                         downBtn.hide();
                                     } else if (file.status === 1)
                                     {
-                                       downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid+"&userid="+file.userid);
+                                        downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid + "&userid=" + file.userid);
                                         downBtn.show();
                                         goonInputBox.hide();
                                     }
