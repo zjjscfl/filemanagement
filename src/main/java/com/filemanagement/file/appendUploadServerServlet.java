@@ -63,7 +63,11 @@ public class appendUploadServerServlet extends HttpServlet {
                 String currentFilePath = ConfigManager.getInstance().getFile_root() + File.separator + id + File.separator;// 记录当前文件的绝对路径
                 FileUtil.getInstance().creatDirectory(currentFilePath);
                 String fileName = request.getParameter("fileName");
-                String targetname = request.getParameter("uuid") + fileName.substring(fileName.lastIndexOf("."));
+                String suffix = ".unknown";
+                if (fileName.lastIndexOf(".") >= 0) {
+                    suffix = fileName.substring(fileName.lastIndexOf("."));
+                }
+                String targetname = request.getParameter("uuid") + suffix;
                 String fileHash = request.getParameter("fileHash");
                 File file = new File(currentFilePath + targetname);
                 // 存在
