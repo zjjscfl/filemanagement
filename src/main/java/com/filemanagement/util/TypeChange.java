@@ -125,4 +125,17 @@ public class TypeChange {
         }
         return request;
     }
+
+    //自动转换MB为GB，TB
+    public String autoChangeMB(long value) {
+        String request = null;
+        if (value >= (1024 * 1024)) {
+            request = (double) Math.round(value * 100 / (1024 * 1024)) / 100 + "TB";
+        } else if (value >= 1024) {
+            request = (double) Math.round(value * 100 / 1024) / 100 + "GB";
+        } else {
+            request = value + "MB";
+        }
+        return request;
+    }
 }
