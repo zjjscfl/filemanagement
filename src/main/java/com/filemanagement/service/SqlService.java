@@ -557,6 +557,8 @@ public class SqlService {
                         temp.addProperty("totalspace", TypeChange.getInstance().autoChangeB(space_path.getTotalSpace()));
                     } else {
                         temp.addProperty("freespace", "");
+                        temp.addProperty("usablespace", "");
+                        temp.addProperty("usablespace", "");
                     }
                     request.addProperty(Config.RESULT, Boolean.FALSE);
                     request.add("user", temp);
