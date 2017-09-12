@@ -558,7 +558,7 @@ public class SqlService {
                     } else {
                         temp.addProperty("freespace", "");
                         temp.addProperty("usablespace", "");
-                        temp.addProperty("usablespace", "");
+                        temp.addProperty("totalspace", "");
                     }
                     request.addProperty(Config.RESULT, Boolean.FALSE);
                     request.add("user", temp);
