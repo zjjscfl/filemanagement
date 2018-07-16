@@ -67,8 +67,8 @@ public class SqlService {
                 stmt.setString(1, salt);
                 stmt.setString(2, "admin");
                 stmt.setString(3, CodecHelper.calcMD5((salt + Config.PROSSWORD).getBytes()));
-                stmt.setInt(4, 1048576);
-                stmt.setInt(5, 1048576);
+                stmt.setInt(4, 1073741824);
+                stmt.setInt(5, 1073741824);
                 stmt.setInt(6, 0);
                 if (stmt.executeUpdate() == 1) {
                     request.addProperty(Config.RESULT, Boolean.FALSE);
@@ -539,6 +539,7 @@ public class SqlService {
             if (TypeChange.getInstance().isNotNull(userid)) {
                 request.addProperty(Config.MESSAGE, "用户ID不能为空");
             } else {
+                File space_path = new File(ConfigManager.getInstance().getFile_root());
                 conn = ConfigManager.getInstance().getConnection();
                 stmt = conn.prepareStatement("SELECT `User`.id,`User`.`name`,`User`.limitspace,`User`.space,`User`.parent,`User`.`status` FROM `User` WHERE id=" + userid);
                 rs = stmt.executeQuery();
@@ -546,10 +547,19 @@ public class SqlService {
                     JsonObject temp = new JsonObject();
                     temp.addProperty("id", rs.getInt(1));
                     temp.addProperty("name", rs.getString(2));
-                    temp.addProperty("limitspace", TypeChange.getInstance().autoChangeMB(rs.getInt(3)));
-                    temp.addProperty("space", TypeChange.getInstance().autoChangeMB(rs.getInt(4)));
+                    temp.addProperty("limitspace", TypeChange.getInstance().autoChangeMB(rs.getLong(3)));
+                    temp.addProperty("space", TypeChange.getInstance().autoChangeMB(rs.getLong(4)));
                     temp.addProperty("parent", rs.getInt(5));
                     temp.addProperty("status", rs.getInt(6));
+                    if (rs.getInt(1) == 1) {
+                        temp.addProperty("freespace", TypeChange.getInstance().autoChangeB(space_path.getFreeSpace()));
+                        temp.addProperty("usablespace", TypeChange.getInstance().autoChangeB(space_path.getUsableSpace()));
+                        temp.addProperty("totalspace", TypeChange.getInstance().autoChangeB(space_path.getTotalSpace()));
+                    } else {
+                        temp.addProperty("freespace", "");
+                        temp.addProperty("usablespace", "");
+                        temp.addProperty("totalspace", "");
+                    }
                     request.addProperty(Config.RESULT, Boolean.FALSE);
                     request.add("user", temp);
                 } else {
