@@ -16,6 +16,8 @@
             searchBtn,
             uploadInput,
             actionList,
+        updateBtn,
+showBtn,
             goonInputBox,
             goonInput,
             downBtn,
@@ -43,11 +45,13 @@
         addModalLabel,
         addForm,
         addId,
-        adddName,
+        addName,
         addDepartment,
         addType,
         addDate,
         addSubmit;
+
+    var checkContract;
 
     function initTarget()
     {
@@ -58,6 +62,9 @@
         addBtn=$("#addBtn");
         refreshBtn = $("#refreshBtn");
         actionList = $("#actionList");
+
+        updateBtn=$("#updateBtn");
+        showBtn=$("#showBtn");
         goonInputBox = $("#goonInputBox");
         goonInput = $("#goonInput");
         downBtn = $("#downBtn");
@@ -72,7 +79,7 @@
             addModalLabel=$("#addModalLabel");
             addForm=$("#addForm");
             addId=$("#addId");
-            adddName=$("#adddName");
+            addName=$("#addName");
             addDepartment=$("#addDepartment");
             addType=$("#addType");
             addDate=$("#addDate");
@@ -90,40 +97,6 @@
             });
         });
 
-        selectBtn.click(function () {
-            var tagList = $("ul", listBox), firstTag, file;
-            if (this.checked)
-            {
-                if (tagList.length > 0)
-                {
-                    tagList.addClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', true);
-                    actionList.show();
-                    if (tagList.length === 1)
-                    {
-                        file = tagList.data("file");
-                        if (file.status === 0)
-                        {
-                            goonInputBox.show();
-                            downBtn.hide();
-                        } else if (file.status === 1)
-                        {
-                            downBtn.attr("href", syfm.apiUriRoot + "fileDown?fileid=" + file.uuid + "&userid=" + file.userid);
-                            downBtn.show();
-                            goonInputBox.hide();
-                        }
-                    } else
-                    {
-                        goonInputBox.hide();
-                        downBtn.hide();
-                    }
-                }
-            } else
-            {
-                tagList.removeClass("listActive").find('.listFileName input[type="checkbox"]').prop('checked', false);
-                actionList.hide();
-            }
-        });
-
         uploadInput.change(function () {
             var files = this.files, i = 0, file;
             if (uploadOpt.state)
@@ -139,34 +112,93 @@
         });
 
         refreshBtn.click(function () {
-            refreshFileList();
+            refreshContractList();
         });
 
 
-        delBtn.click(function () {
-            var selectList = [];
-            $('ul .listFileName input[type="checkbox"]', listBox).each(function (idx, item) {
-                var file = $(item).closest("ul").data("file");
-                if (this.checked)
-                {
-                    selectList.push(file.id);
-                }
-            });
-            if (selectList.length === 0)
+
+
+        searchBtn.click(function () {
+            //getOpt.search = searchTxt.val();
+            //searchFileList();
+        });
+
+
+
+        window.onresize = function () {
+            setListHeight();
+        };
+
+
+        addBtn.click(function () {
+            addModalLabel.html('添加合同');
+            addForm.get(0).reset();
+            addDepartment.prop("disabled","");
+            addModal.modal('show');
+        });
+
+        updateBtn.click(function () {
+            if(!checkContract)
             {
-                syfm.showNotify('error', "请至少选择一个文件。");
+                syfm.showNotify('error', "请选择一个合同。");
                 return;
             }
-            $.post(syfm.apiUriRoot + 'file', {
-                action: 'delFile',
-                fileid: selectList.join(',')
+            addModalLabel.html('编辑合同');
+            addForm.get(0).reset();
+            addId.val(checkContract.id);
+            addName.val(checkContract.name);
+            addDepartment.val(checkContract.department_id);
+            addDepartment.prop("disabled","disable");
+            addType.val(checkContract.type);
+            addDate.val(checkContract.date);
+            addModal.modal('show');
+        });
+
+        addSubmit.click(function () {
+            var idVal=addId.val();
+            var nameVal=addName.val();
+            var departmentVal=addDepartment.val();
+            var typeVal=addType.val();
+            var dateVal=addDate.val();
+            var action;
+            if(!nameVal)
+            {
+                syfm.showNotify('error', "请输入名称。");
+                return;
+            }
+            if(!departmentVal)
+            {
+                syfm.showNotify('error', "请选择一个部门。");
+                return;
+            }
+            if(!dateVal)
+            {
+                syfm.showNotify('error', "请选择一个日期。");
+                return;
+            }
+            if(idVal!=="0")
+            {
+                action='update';
+            }
+            else
+            {
+                action='add';
+            }
+            $.post(syfm.apiUriRoot + 'contract', {
+                action:action,
+                contract_id:idVal,
+                name:nameVal,
+                type:typeVal,
+                department_id:departmentVal,
+                date:dateVal
             }).then(function (data) {
                 if (data && typeof data.RESULT === 'boolean')
                 {
                     if (!data.RESULT)
                     {
                         syfm.showNotify('success', data.MESSAGE);
-                        refreshFileList();
+                        refreshContractList();
+                        addModal.modal('hide');
                     } else
                     {
                         syfm.showNotify('error', data.MESSAGE);
@@ -178,22 +210,6 @@
             }, function () {
                 syfm.showNotify('error', "服务器响应异常。");
             });
-        });
-
-        searchBtn.click(function () {
-            getOpt.search = searchTxt.val();
-            searchFileList();
-        });
-
-
-
-        window.onresize = function () {
-            setListHeight();
-        };
-
-
-        addBtn.click(function () {
-            addModal.modal('show');
         });
     }
 
@@ -337,6 +353,88 @@
     {
         var boxHeight = $(".syfmMain").height();
         $(".listBody").height(parseInt(boxHeight) - 96);
+    }
+    
+    function initContractList() {
+        showContractList();
+    }
+
+    function getContractList() {
+        return $.getJSON(syfm.apiUriRoot + 'contract', {action:'getAll',currentPage:1,pageSize:100});
+    }
+
+    function showContractList() {
+        getContractList().then(function (data) {
+            if (data && typeof data.RESULT === 'boolean')
+            {
+                if (!data.RESULT)
+                {
+                    listBox.html('');
+                    actionList.hide();
+                    checkContract=null;
+                    $.each(data.ListArray, function (idx, item) {
+                        showContractItem(item);
+                    });
+                    $('ul', listBox).mouseenter(function () {
+                        $(this).addClass('listHover');
+                    }).mouseleave(function () {
+                        $(this).removeClass('listHover');
+                    }).each(function (idx, item) {
+                        var file = data.ListArray[idx];
+                        $(item).data("contract", file);
+                    });
+                    $('ul', listBox).click(function () {
+                        if (!$(this).hasClass("listActive"))
+                        {
+                            checkContract=$(this).data("contract");
+                            $(this).addClass('listActive').siblings().removeClass("listActive");
+                            actionList.show();
+                        } else
+                        {
+                            $(this).removeClass('listActive');
+                            actionList.hide();
+                        }
+                    });
+                } else
+                {
+                    syfm.showNotify('error', data.MESSAGE);
+                }
+            } else
+            {
+                syfm.showNotify('error', '服务器响应异常。');
+            }
+        }, function () {
+            syfm.showNotify('error', '服务器响应异常。');
+        });
+    }
+
+    function showContractItem(data) {
+        var ul = $("<ul></ul>").addClass("clearfix").appendTo(listBox);
+        ul.append('<li class="listFileName"><span>' + data.name + '</span></li>');
+        ul.append('<li class="listFileSize"><span>' + formatCode(data) + '</span></li>');
+        ul.append('<li class="listFileLastTime"><span>' + data.department_name + '</span></li>');
+        ul.append('<li class="listFileStatus"><span>' + data.number + '</span></li>');
+        ul.append('<li class="listFileStatus"><span>' + data.date + '</span></li>');
+        ul.append('<li class="listFileStatus"><span>' + formatType(data.type) + '</span></li>');
+        ul.append('<li class="listFileStatus"><span>' + formatStatus(data.status) + '</span></li>');
+    }
+
+    function formatCode(item) {
+        return item.code+item.date.replace(/-/g,'')+item.type+(Array(3).join(0) + item.number).slice(-3);
+    }
+
+    function formatType(type) {
+        var result='';
+        switch (type) {
+            case "A":result="销售合同";break;
+            case "B":result="采购合同";break;
+        }
+        return result;
+    }
+
+    function refreshContractList()
+    {
+        showContractList();
     }
 
     function initFileList()
@@ -518,6 +616,24 @@
         });
     }
 
+    function initDepartment()
+    {
+        $.post(syfm.apiUriRoot + "department", {
+            "action": 'getAll'
+        },function (data) {
+            var html=[];
+            if(data&&typeof data.RESULT==='boolean'&&!data.RESULT&&data.departmentList)
+            {
+                addDepartment.html('');
+                html.push('<option value="">请选择一个部门</option>');
+                $.each(data.departmentList,function (index,item) {
+                    html.push('<option value="'+item.id+'">'+item.name+'</option>');
+                })
+                addDepartment.html(html.join(''));
+            }
+        },'json');
+    }
+
 
     $(document).ready(function () {
         initTarget();
@@ -525,7 +641,9 @@
         initAction();
         syfm.getUser();
         syfm.initPwd();
-        initFileList();
+        initDepartment();
+        initContractList();
+        //initFileList();
         initDatepicker();
     });
 })();

@@ -27,7 +27,7 @@ and open the template in the editor.
         <div class="syfmPage">
             <div class="syfmHeader">
                 <dl>
-                    <dt><a href="index.html">文件管理系统</a></dt>
+                    <dt><a href="index.html">合同管理系统</a></dt>
                     <dd>
                         <div class="dropdown">
                             <span class="dropdown-toggle" id="userMenuSpan" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -53,38 +53,43 @@ and open the template in the editor.
             <div class="syfmMain">
                 <div class="toolBar">
                     <div class="funcList">
-                        <span class="uploadBox">
-                            <span class="uploadBtn"><input type="file" id="uploadInput" multiple="multiple"/></span>
-                            <span><a class="btn btn-primary">上传</a></span>
-                        </span>
+
                         <a class="btn btn-primary" id="addBtn">添加合同</a>
-                        <a class="btn btn-primary" id="refreshBtn">刷新</a>
                         <span id="actionList" style="display: none">
                             <span class="uploadBox" id="goonInputBox">
                                 <span class="uploadBtn"><input type="file" id="goonInput"/></span>
                                 <span><a class="btn btn-primary">续传</a></span>
                             </span>
-                            <a class="btn btn-primary" id="downBtn" target="_blank">下载</a>
-                            <a class="btn btn-primary" id="delBtn">删除</a>
+                            <a class="btn btn-primary" id="updateBtn">编辑合同</a>
+                            <a class="btn btn-primary" id="showBtn">管理文件</a>
                         </span>
-
+                        <a class="btn btn-primary" id="refreshBtn">刷新</a>
                     </div>
                     <div class="searchBox form-inline">
-                        <input class="form-control" type="text" placeholder="搜索您的文件" id="searchTxt"/>
-                        <button class="btn btn-primary" id="searchBtn">搜索</button>
+                        <!--<input class="form-control" type="text" placeholder="搜索合同" id="searchTxt"/>-->
+                        <!--<button class="btn btn-primary" id="searchBtn">搜索</button>-->
                     </div>
                 </div>
                 <div class="listHeader">
                     <ul class="clearfix">
                         <li class="listFileName">
-                            <input type="checkbox" id="selectBtn"/>
-                            <span>文件名</span>
+                            <!--<input type="checkbox" id="selectBtn"/>-->
+                            <span>名称</span>
                         </li>
                         <li class="listFileSize">
-                            <span>大小</span>
+                            <span>代码</span>
                         </li>
                         <li class="listFileLastTime">
-                            <span>修改日期</span>
+                            <span>部门</span>
+                        </li>
+                        <li class="listFileLastTime">
+                            <span>序号</span>
+                        </li>
+                        <li class="listFileLastTime">
+                            <span>日期</span>
+                        </li>
+                        <li class="listFileLastTime">
+                            <span>类型</span>
                         </li>
                         <li class="listFileStatus">
                             <span>状态</span>
@@ -115,7 +120,7 @@ and open the template in the editor.
                             <div class="form-group">
                                 <label class="col-md-2 control-label">名称</label>
                                 <div class="col-md-10">
-                                    <input type="password" id="adddName" class="form-control"/>
+                                    <input type="text" id="addName" class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group">
@@ -162,13 +167,13 @@ and open the template in the editor.
                             <div class="form-group">
                                 <label class="col-md-2 control-label">新密码</label>
                                 <div class="col-md-10">
-                                    <input type="password" id="pwdPwd" class="form-control-static"/>
+                                    <input type="password" id="pwdPwd" class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-md-2 control-label">确认密码</label>
                                 <div class="col-md-10">
-                                    <input type="password" class="form-control-static" id="pwdConfirm"/>
+                                    <input type="password" class="form-control" id="pwdConfirm"/>
                                 </div>
                             </div>
                         </form>
@@ -176,6 +181,58 @@ and open the template in the editor.
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                         <button type="button" class="btn btn-primary" id="pwdSubmit">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="fileModalLabel">合同文件管理</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="toolBar">
+                            <div class="funcList">
+                        <span class="uploadBox">
+                            <span class="uploadBtn"><input type="file" id="uploadInput" multiple="multiple"/></span>
+                            <span><a class="btn btn-primary">上传</a></span>
+                        </span>
+
+                            </div>
+                        </div>
+                        <div class="listHeader">
+                            <ul class="clearfix">
+                                <li class="listFileName">
+                                    <!--<input type="checkbox" id="selectBtn"/>-->
+                                    <span>名称</span>
+                                </li>
+                                <li class="listFileSize">
+                                    <span>代码</span>
+                                </li>
+                                <li class="listFileLastTime">
+                                    <span>部门</span>
+                                </li>
+                                <li class="listFileLastTime">
+                                    <span>序号</span>
+                                </li>
+                                <li class="listFileLastTime">
+                                    <span>日期</span>
+                                </li>
+                                <li class="listFileLastTime">
+                                    <span>类型</span>
+                                </li>
+                                <li class="listFileStatus">
+                                    <span>状态</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="listBody">
+                            <div class="listWrap" id="fileBox">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

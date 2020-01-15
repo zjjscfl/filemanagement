@@ -64,6 +64,7 @@
 {
     float: left;
     line-height: 40px;
+    width: 14%;
 }
 
 .listBody
@@ -94,6 +95,7 @@
 {
     float: left;
     line-height: 40px;
+    width: 14%;
 }
 
 .listFileName
