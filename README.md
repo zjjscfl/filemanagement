@@ -33,3 +33,7 @@ appendUploadServer?fileName=name&fileSize=1000&uuid=4f14cdcb-ea15-49a7-8697-4b8a
 department?action=getAll
 
 contract?action=add&name=测试合同&type=A&department_id=1
+
+contract?action=update&name=测试合同2&type=B&department_id=2&date=2020-01-16&contract_id=2
+
+contract?action=getAll&currentPage=1&pageSize=10

@@ -19,11 +19,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1478,7 +1474,7 @@ public class SqlService {
         return request;
     }
 
-
+    //添加合同信息
     public JsonObject addContract(int department_id, String name, String type) {
 
         Connection conn = null;
@@ -1490,7 +1486,9 @@ public class SqlService {
         try {
 
             conn = ConfigManager.getInstance().getConnection();
-            stmt = conn.prepareStatement("SELECT count(id)+1 FROM `contract` WHERE  DATE_FORMAT(date, '%Y') =DATE_FORMAT(NOW(), '%Y')");
+
+            stmt = conn.prepareStatement("SELECT count(id)+1 FROM `contract` WHERE  DATE_FORMAT(date, '%Y') =DATE_FORMAT(NOW(), '%Y') and department_id=?");
+            stmt.setInt(1, department_id);
             rs = stmt.executeQuery();
             if (rs.next()) {
                 number = rs.getInt(1);
@@ -1500,9 +1498,10 @@ public class SqlService {
             stmt.close();
             stmt = null;
 
-            if (number > 0) {
-                String salt = Salt.getInstance().generateShortUuid();
-                stmt = conn.prepareStatement("INSERT INTO `contract`(`department_id`, `number`, `name`, `date`, `status`, `type`) VALUES (?, ?, ?, date(now()),?,?)");
+            if (number == 0) {
+                request.addProperty(Config.MESSAGE, "合同信息添加失败，合同编码获取错误");
+            } else {
+                stmt = conn.prepareStatement("INSERT INTO `contract`(`department_id`, `number`, `name`, `date`, `status`, `type`) VALUES (?, ?, ?,date(now()),?,?)");
                 stmt.setInt(1, department_id);
                 stmt.setInt(2, number);
                 stmt.setString(3, name);
@@ -1512,12 +1511,10 @@ public class SqlService {
                     request.addProperty(Config.RESULT, Boolean.FALSE);
                     request.addProperty(Config.MESSAGE, "合同信息添加成功");
                 } else {
-                    request.addProperty(Config.MESSAGE, "合同信息添加失败，合同数量获取错误");
+                    request.addProperty(Config.MESSAGE, "合同信息添加失败");
                 }
                 stmt.close();
                 stmt = null;
-            } else {
-                request.addProperty(Config.MESSAGE, "合同信息添加成功");
             }
             conn.close();
             conn = null;
@@ -1530,7 +1527,7 @@ public class SqlService {
                 }
             }
             Log.log(Level.SEVERE, null, ex);
-            request.addProperty(Config.MESSAGE, "用户添加失败,程序异常");
+            request.addProperty(Config.MESSAGE, "添加失败,程序异常");
         } finally {
             if (rs != null) {
                 try {
@@ -1562,6 +1559,179 @@ public class SqlService {
                 try {
                     conn.close();
 
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+    //修改合同信息
+    public JsonObject updateContract(int department_id, String name, String date, String type, int contract_id) {
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        JsonObject request = new JsonObject();
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+
+            conn = ConfigManager.getInstance().getConnection();
+
+            stmt = conn.prepareStatement("UPDATE `contract` SET `department_id` = ?,`name` = ?, `date` = ?, `type` = ? WHERE `id` = ?");
+            stmt.setInt(1, department_id);
+            stmt.setString(2, name);
+            stmt.setString(3, date);
+            stmt.setString(4, type);
+            stmt.setInt(5, contract_id);
+            if (stmt.executeUpdate() == 1) {
+                request.addProperty(Config.RESULT, Boolean.FALSE);
+                request.addProperty(Config.MESSAGE, "合同信息修改成功");
+            } else {
+                request.addProperty(Config.MESSAGE, "合同信息修改错误");
+            }
+
+            stmt.close();
+            stmt = null;
+
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex1) {
+                    Log.log(Level.SEVERE, null, ex1);
+                }
+            }
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "修改失败,程序异常");
+        } finally {
+
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+
+    //查询所有合同信息
+    public JsonObject getContractList(int currentPage, int pageSize) {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        JsonArray ListArray = new JsonArray();
+        int totalSize = 0;
+        try {
+
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT count(id) FROM  `contract` ");
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                totalSize = rs.getInt(1);
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+            if (totalSize == 0) {
+                request.addProperty("totalPages", 0);
+                request.addProperty("currentPage", currentPage);
+                request.add("data", ListArray);
+                request.addProperty(Config.RESULT, Boolean.FALSE);
+            } else {
+                //计算出总页数
+                int totalPages = totalSize / pageSize + ((totalSize % pageSize) > 0 ? 1 : 0);
+                if (currentPage <= 0) {
+                    currentPage = 1;
+                } else if (currentPage > totalPages) {
+                    currentPage = totalPages;
+                }
+                //计算出当前页面的起始行和最后一行
+                int startRow = pageSize * (currentPage - 1);
+                int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
+                int limitRow = maxRow - startRow;
+                stmt = conn.prepareStatement("SELECT  c.id,d.`name`,d.`code`, c.`number`, c.`name`, c.`date`, c.`status`, c.`type` FROM  `contract` c LEFT JOIN department d on  c.`department_id`=d.id LIMIT ?,?");
+                stmt.setInt(1, startRow);
+                stmt.setInt(2, limitRow);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    JsonObject temp = new JsonObject();
+                    temp.addProperty("id", rs.getInt(1));
+                    temp.addProperty("dname", rs.getString(2));
+                    temp.addProperty("code", rs.getString(3));
+                    temp.addProperty("number", rs.getString(4));
+                    temp.addProperty("cname", rs.getString(5));
+                    temp.addProperty("date", rs.getString(6));
+                    temp.addProperty("status", rs.getInt(7));
+                    temp.addProperty("type", rs.getString(8));
+                    ListArray.add(temp);
+                    temp = null;
+
+                }
+                rs.close();
+                rs = null;
+                stmt.close();
+                stmt = null;
+                request.addProperty("totalPages", totalPages);
+                request.addProperty("currentPage", currentPage);
+                request.add("ListArray", ListArray);
+                request.addProperty(Config.RESULT, Boolean.FALSE);
+            }
+            conn.close();
+            conn = null;
+
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.RESULT, Boolean.TRUE);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
                 } catch (SQLException ex) {
                     Log.log(Level.SEVERE, null, ex);
                 }

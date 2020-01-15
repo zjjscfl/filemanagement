@@ -42,12 +42,29 @@ public class contractServlet extends HttpServlet {
 
                     if (department_id > 0 && !TypeChange.getInstance().isNotNull(name) && !TypeChange.getInstance().isNotNull(type)) {
                         oResult = SqlService.getInstance().addContract(department_id, name, type);
-                    }else{
+                    } else {
                         oResult.addProperty(Config.MESSAGE, "参数错误");
                     }
 
-                } else {
+                } else if ("update".equals(action)) {
+                    int contract_id = TypeChange.getInstance().stringToInt(request.getParameter("contract_id"));
+                    int department_id = TypeChange.getInstance().stringToInt(request.getParameter("department_id"));
+                    String name = request.getParameter("name");
+                    String type = request.getParameter("type");
+                    String date = request.getParameter("date");
 
+                    if (department_id > 0 && !TypeChange.getInstance().isNotNull(name) && !TypeChange.getInstance().isNotNull(type) & contract_id > 0 && !TypeChange.getInstance().isNotNull(date)) {
+                        oResult = SqlService.getInstance().updateContract(department_id, name, date, type, contract_id);
+                    } else {
+                        oResult.addProperty(Config.MESSAGE, "参数错误");
+                    }
+
+                } else if ("getAll".equals(action)) {
+                    int currentPage = TypeChange.getInstance().stringToInt(request.getParameter("currentPage"));
+                    int pageSize = TypeChange.getInstance().stringToInt(request.getParameter("pageSize"));
+                    oResult = SqlService.getInstance().getContractList(currentPage, pageSize);
+
+                } else {
                     oResult.addProperty(Config.MESSAGE, "不存在的操作选项");
                 }
             }
