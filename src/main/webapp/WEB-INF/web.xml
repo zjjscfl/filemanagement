@@ -40,6 +40,14 @@
         <servlet-name>fileDownServlet</servlet-name>
         <servlet-class>com.filemanagement.file.fileDownServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>departmentServlet</servlet-name>
+        <servlet-class>com.filemanagement.department.departmentServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>contractServlet</servlet-name>
+        <servlet-class>com.filemanagement.contract.contractServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>userMangerServlet</servlet-name>
         <url-pattern>/userManger</url-pattern>
@@ -75,6 +83,14 @@
     <servlet-mapping>
         <servlet-name>fileDownServlet</servlet-name>
         <url-pattern>/fileDown</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>departmentServlet</servlet-name>
+        <url-pattern>/department</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>contractServlet</servlet-name>
+        <url-pattern>/contract</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

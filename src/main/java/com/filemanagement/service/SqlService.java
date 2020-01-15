@@ -13,6 +13,7 @@ import com.filemanagement.util.Salt;
 import com.filemanagement.util.TypeChange;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author ubuntu
  */
 public class SqlService {
@@ -1405,6 +1405,163 @@ public class SqlService {
             if (conn != null) {
                 try {
                     conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+
+    //获取部门列表
+    public JsonObject getDepartmentList() {
+        JsonObject request = new JsonObject();
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        JsonArray ListArray = new JsonArray();
+        try {
+
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT id,name,code,`status` FROM  `department` ");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                JsonObject temp = new JsonObject();
+                temp.addProperty("id", rs.getInt(1));
+                temp.addProperty("name", rs.getString(2));
+                temp.addProperty("code", rs.getString(3));
+                temp.addProperty("status", rs.getInt(4));
+                ListArray.add(temp);
+                temp = null;
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+            request.addProperty(Config.RESULT, Boolean.FALSE);
+            request.add("departmentList", ListArray);
+            conn.close();
+            conn = null;
+
+        } catch (SQLException ex) {
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.RESULT, Boolean.TRUE);
+            request.addProperty(Config.MESSAGE, "发生错误,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                conn = null;
+            }
+        }
+        return request;
+    }
+
+
+    public JsonObject addContract(int department_id, String name, String type) {
+
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        JsonObject request = new JsonObject();
+        int number = 0;
+        request.addProperty(Config.RESULT, Boolean.TRUE);
+        try {
+
+            conn = ConfigManager.getInstance().getConnection();
+            stmt = conn.prepareStatement("SELECT count(id)+1 FROM `contract` WHERE  DATE_FORMAT(date, '%Y') =DATE_FORMAT(NOW(), '%Y')");
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                number = rs.getInt(1);
+            }
+            rs.close();
+            rs = null;
+            stmt.close();
+            stmt = null;
+
+            if (number > 0) {
+                String salt = Salt.getInstance().generateShortUuid();
+                stmt = conn.prepareStatement("INSERT INTO `contract`(`department_id`, `number`, `name`, `date`, `status`, `type`) VALUES (?, ?, ?, date(now()),?,?)");
+                stmt.setInt(1, department_id);
+                stmt.setInt(2, number);
+                stmt.setString(3, name);
+                stmt.setInt(4, 1);
+                stmt.setString(5, type);
+                if (stmt.executeUpdate() == 1) {
+                    request.addProperty(Config.RESULT, Boolean.FALSE);
+                    request.addProperty(Config.MESSAGE, "合同信息添加成功");
+                } else {
+                    request.addProperty(Config.MESSAGE, "合同信息添加失败，合同数量获取错误");
+                }
+                stmt.close();
+                stmt = null;
+            } else {
+                request.addProperty(Config.MESSAGE, "合同信息添加成功");
+            }
+            conn.close();
+            conn = null;
+        } catch (SQLException ex) {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException ex1) {
+                    Log.log(Level.SEVERE, null, ex1);
+                }
+            }
+            Log.log(Level.SEVERE, null, ex);
+            request.addProperty(Config.MESSAGE, "用户添加失败,程序异常");
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                rs = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+
+                } catch (SQLException ex) {
+                    Log.log(Level.SEVERE, null, ex);
+                }
+                stmt = null;
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+
                 } catch (SQLException ex) {
                     Log.log(Level.SEVERE, null, ex);
                 }

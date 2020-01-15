@@ -113,9 +113,74 @@ public class AutoUpdateListener implements ServletContextListener {
     private List<String> loadSqlCreate() {
         List<String> sqlList = new ArrayList<String>();
         try {
-            String sql = "CREATE TABLE If NOT EXISTS `File` (  `id` int(11) NOT NULL AUTO_INCREMENT,  `userid` int(11) NOT NULL,  `hash` varchar(32) COLLATE utf8_unicode_ci NOT NULL,  `sourcename` varchar(255) COLLATE utf8_unicode_ci NOT NULL,  `targetname` varchar(255) COLLATE utf8_unicode_ci NOT NULL,  `mime` varchar(255) COLLATE utf8_unicode_ci NOT NULL,  `lasttime` datetime DEFAULT NULL,  `size` int(11) NOT NULL DEFAULT '0',  `status` int(11) NOT NULL DEFAULT '0' COMMENT ' -1已经删除,0上传中,1上传完成',  PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;\n"
-                    + "CREATE TABLE If NOT EXISTS `User` (  `id` int(11) NOT NULL AUTO_INCREMENT,  `salt` char(8) COLLATE utf8_unicode_ci NOT NULL,  `name` varchar(32) COLLATE utf8_unicode_ci NOT NULL,  `pwd` varchar(32) COLLATE utf8_unicode_ci NOT NULL,  `limitspace` int(11) NOT NULL DEFAULT '0',  `space` int(11) NOT NULL DEFAULT '0',  `parent` int(11) NOT NULL,`status` int(11) NOT NULL DEFAULT '0' COMMENT '-1 禁用,0 正常',`type` char(1) NOT NULL DEFAULT 'a' COMMENT '用户性质:a-abidance,t-temp', PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8;";
-
+            String sql = "CREATE TABLE If NOT EXISTS `contract`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '编号',\n" +
+                    "  `department_id` int(11) NOT NULL COMMENT '部门编号',\n" +
+                    "  `number` int(11) NOT NULL COMMENT '部门合同顺序',\n" +
+                    "  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '合同名称',\n" +
+                    "  `date` date NOT NULL COMMENT '合同时间',\n" +
+                    "  `status` int(2) NOT NULL COMMENT '状态',\n" +
+                    "  `type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '合同类型',\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;\n" +
+                    "\n" +
+                    "CREATE TABLE If NOT EXISTS `contract_file`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '合同文件编号',\n" +
+                    "  `contract_id` int(11) NOT NULL COMMENT '合同编号',\n" +
+                    "  `file_id` int(11) NOT NULL COMMENT '文件编号',\n" +
+                    "  `number` int(11) NOT NULL COMMENT '文件序号',\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;\n" +
+                    "\n" +
+                    "CREATE TABLE If NOT EXISTS `department`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '部门编号',\n" +
+                    "  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '部门名称',\n" +
+                    "  `code` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '部门代码',\n" +
+                    "  `status` int(2) NOT NULL COMMENT '部门状态',\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;\n" +
+                    "\n" +
+                    "CREATE TABLE If NOT EXISTS `file`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `userid` int(11) NOT NULL,\n" +
+                    "  `hash` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `sourcename` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `targetname` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `mime` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `lasttime` datetime(0) NULL DEFAULT NULL,\n" +
+                    "  `size` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `status` int(11) NOT NULL DEFAULT 0 COMMENT ' -1已经删除,0上传中,1上传完成',\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;\n" +
+                    "\n" +
+                    "CREATE TABLE If NOT EXISTS `t_order`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `time` datetime(0) NULL DEFAULT NULL COMMENT '订单时间',\n" +
+                    "  `openid` varchar(64) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,\n" +
+                    "  `amount` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `couponid` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `pay` int(11) NOT NULL DEFAULT 0 COMMENT '应该支付的单个产品的金额，单位为分',\n" +
+                    "  `cash` int(11) NOT NULL DEFAULT 0 COMMENT '实际支付的金额，单位为分',\n" +
+                    "  `name` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,\n" +
+                    "  `phone` varchar(45) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,\n" +
+                    "  `address` varchar(400) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,\n" +
+                    "  `status` int(11) NULL DEFAULT NULL,\n" +
+                    "  `remark` varchar(200) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL,\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;\n" +
+                    "\n" +
+                    "CREATE TABLE If NOT EXISTS `user`  (\n" +
+                    "  `id` int(11) NOT NULL AUTO_INCREMENT,\n" +
+                    "  `salt` char(8) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `name` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `pwd` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,\n" +
+                    "  `limitspace` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `space` int(11) NOT NULL DEFAULT 0,\n" +
+                    "  `parent` int(11) NOT NULL,\n" +
+                    "  `status` int(11) NOT NULL DEFAULT 0 COMMENT '-1 禁用,0 正常',\n" +
+                    "  `type` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'a' COMMENT '用户性质:a-abidance,t-temp',\n" +
+                    "  PRIMARY KEY (`id`) USING BTREE\n" +
+                    ") ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;\n";
 // Windows 下换行是 \r\n, Linux 下是 \n 
             String[] sqlArr = sql.split("(;\\s*\\r\\n)|(;\\s*\\n)");
             for (String sqlArr1 : sqlArr) {
