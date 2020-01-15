@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -8,46 +8,36 @@
 (function () {
     'use strict';
     var userNameShow,
-            userLogout,
-            selectBtn,
-        addBtn,
-            refreshBtn,
-            searchTxt,
-            searchBtn,
-            uploadInput,
-            actionList,
-            goonInputBox,
-            goonInput,
-            downBtn,
-            delBtn,
-            getOpt = {
-                action: 'getFileList',
-                pageSize: 100,
-                currentPage: 1,
-                search: ''
-            },
-            uploadOpt = {
-                total: 0,
-                current: 0,
-                success: 0,
-                error: 0,
-                paragraph: 1024 * 1024 * 2,
-                state: 0,
-                uuid: '',
-                md5: ''
-            },
-            blob,
-            uploadMsg,
-            listBox,
-    addModal,
-        addModalLabel,
-        addForm,
-        addId,
-        adddName,
-        addDepartment,
-        addType,
-        addDate,
-        addSubmit;
+        userLogout,
+        selectBtn,
+        refreshBtn,
+        searchTxt,
+        searchBtn,
+        uploadInput,
+        actionList,
+        goonInputBox,
+        goonInput,
+        downBtn,
+        delBtn,
+        getOpt = {
+            action: 'getFileList',
+            pageSize: 100,
+            currentPage: 1,
+            search: ''
+        },
+        uploadOpt = {
+            total: 0,
+            current: 0,
+            success: 0,
+            error: 0,
+            paragraph: 1024 * 1024 * 2,
+            state: 0,
+            uuid: '',
+            md5: ''
+        },
+        blob,
+        uploadMsg,
+        listBox;
 
     function initTarget()
     {
@@ -55,7 +45,6 @@
         userNameShow.html(syfm.user.USERNAME);
         userLogout = $("#userLogout");
         selectBtn = $("#selectBtn");
-        addBtn=$("#addBtn");
         refreshBtn = $("#refreshBtn");
         actionList = $("#actionList");
         goonInputBox = $("#goonInputBox");
@@ -67,23 +56,10 @@
         uploadInput = $("#uploadInput");
         uploadMsg = $(".uploadMsg");
         listBox = $("#listBox");
-
-        addModal=$("#addModal");
-            addModalLabel=$("#addModalLabel");
-            addForm=$("#addForm");
-            addId=$("#addId");
-            adddName=$("#adddName");
-            addDepartment=$("#addDepartment");
-            addType=$("#addType");
-            addDate=$("#addDate");
-        addSubmit=$("#addSubmit");
     }
 
     function initAction()
     {
-
-
-
         userLogout.click(function () {
             $.post(syfm.apiUriRoot + 'logout').then(function () {
                 location.href = syfm.apiUriRoot + 'login.html';
@@ -185,16 +161,9 @@
             searchFileList();
         });
 
-
-
         window.onresize = function () {
             setListHeight();
         };
-
-
-        addBtn.click(function () {
-            addModal.modal('show');
-        });
     }
 
     function uploadFile(files, i)
@@ -250,9 +219,9 @@
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    //表示服务器的相应代码是200；正确返回了数据   
+                    //表示服务器的相应代码是200；正确返回了数据
                     if (xhr.status === 200) {
-                        //纯文本数据的接受方法   
+                        //纯文本数据的接受方法
                         var message = xhr.responseText;
                         message = Number(message);
                         uploadProgress(files, startSize, message, i);
@@ -263,7 +232,7 @@
                 }
             };//创建回调方法
             xhr.open("POST", syfm.apiUriRoot + "appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=" + uploadOpt.uuid + "&fileHash=" + uploadOpt.md5,
-                    false);
+                false);
             xhr.overrideMimeType("application/octet-stream;charset=utf-8");
             xhr.sendAsBinary(evt.target.result);
         };
@@ -508,16 +477,6 @@
         return statusStr;
     }
 
-    function initDatepicker()
-    {
-        addDate.datepicker({
-            todayBtn: "linked",
-            language: "zh-CN",
-            autoclose: true,
-            todayHighlight: true
-        });
-    }
-
 
     $(document).ready(function () {
         initTarget();
@@ -526,6 +485,5 @@
         syfm.getUser();
         syfm.initPwd();
         initFileList();
-        initDatepicker();
     });
 })();

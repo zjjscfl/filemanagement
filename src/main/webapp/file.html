@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件管理</title>
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+    <link href="lib/pnotify/pnotify.css" rel="stylesheet" type="text/css"/>
+    <link href="css/public.css" rel="stylesheet" type="text/css"/>
+    <link href="css/index.css" rel="stylesheet" type="text/css"/>
+    <script src="lib/jquery/jquery.min.js" type="text/javascript"></script>
+    <script src="lib/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="lib/pnotify/pnotify.js" type="text/javascript"></script>
+    <script src="lib/md5/md5.min.js" type="text/javascript"></script>
+    <script src="lib/uuid/uuid.js" type="text/javascript"></script>
+    <script src="js/public.js" type="text/javascript"></script>
+    <script src="js/file.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="syfmPage">
+    <div class="syfmHeader">
+        <dl>
+            <dt><a href="index.html">文件管理系统</a></dt>
+            <dd>
+                <div class="dropdown">
+                            <span class="dropdown-toggle" id="userMenuSpan" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                欢迎您：<span id="userNameShow"></span>，您的空间为
+                                <span id="spaceShow"></span>，可用空间为
+                                 <span id="limitSpaceShow"></span>
+                                <span class="caret"></span>
+                            </span>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenuSpan">
+                        <li><a href="#" id="userPwd">修改密码</a></li>
+                        <li><a href="#" id="userLogout">用户退出</a></li>
+                    </ul>
+                </div>
+            </dd>
+        </dl>
+    </div>
+    <div class="syfmAside">
+        <ul class="syfmMenu">
+            <li><a href="index.html"><em class="glyphicon glyphicon-file"></em><span>合同管理</span></a></li>
+            <li><a href="file.html"><em class="glyphicon glyphicon-file"></em><span>文件管理</span></a></li>
+            <li><a href="user.html"><em class="glyphicon glyphicon-user"></em><span>用户管理</span></a></li>
+        </ul>
+    </div>
+    <div class="syfmMain">
+        <div class="toolBar">
+            <div class="funcList">
+                        <span class="uploadBox">
+                            <span class="uploadBtn"><input type="file" id="uploadInput" multiple="multiple"/></span>
+                            <span><a class="btn btn-primary">上传</a></span>
+                        </span>
+
+                <a class="btn btn-primary" id="refreshBtn">刷新</a>
+                <span id="actionList" style="display: none">
+                            <span class="uploadBox" id="goonInputBox">
+                                <span class="uploadBtn"><input type="file" id="goonInput"/></span>
+                                <span><a class="btn btn-primary">续传</a></span>
+                            </span>
+                            <a class="btn btn-primary" id="downBtn" target="_blank">下载</a>
+                            <a class="btn btn-primary" id="delBtn">删除</a>
+                        </span>
+
+            </div>
+            <div class="searchBox form-inline">
+                <input class="form-control" type="text" placeholder="搜索您的文件" id="searchTxt"/>
+                <button class="btn btn-primary" id="searchBtn">搜索</button>
+            </div>
+        </div>
+        <div class="listHeader">
+            <ul class="clearfix">
+                <li class="listFileName">
+                    <input type="checkbox" id="selectBtn"/>
+                    <span>文件名</span>
+                </li>
+                <li class="listFileSize">
+                    <span>大小</span>
+                </li>
+                <li class="listFileLastTime">
+                    <span>修改日期</span>
+                </li>
+                <li class="listFileStatus">
+                    <span>状态</span>
+                </li>
+            </ul>
+        </div>
+        <div class="listBody">
+            <div class="listWrap" id="listBox">
+            </div>
+        </div>
+    </div>
+    <div class="uploadMsg">
+        上传：<span>1</span>/<span>3</span> ，当前上传文件：1.jpg，50M，50%
+    </div>
+</div>
+
+
+<div class="modal fade" id="pwdModal" tabindex="-1" role="dialog" aria-labelledby="pwdModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="pwdModalLabel">修改密码</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form form-horizontal" id="pwdForm">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">新密码</label>
+                        <div class="col-md-10">
+                            <input type="password" id="pwdPwd" class="form-control-static"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">确认密码</label>
+                        <div class="col-md-10">
+                            <input type="password" class="form-control-static" id="pwdConfirm"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="pwdSubmit">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

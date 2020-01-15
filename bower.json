@@ -19,6 +19,7 @@
     "bootstrap": "^3.3.7",
     "pnotify": "^3.2.0",
     "uuid-js": "0.7.5",
-    "js-md5": "md5#^0.6.0"
+    "js-md5": "md5#^0.6.0",
+    "bootstrap-datepicker": "^1.9.0"
   }
 }

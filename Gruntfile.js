@@ -57,6 +57,16 @@ module.exports = function (grunt) {
                         dest: 'src/main/webapp/lib/uuid/'
                     }
                 ]
+            },
+            datepicker:{
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'bower_components/bootstrap-datepicker/dist/',
+                        src: '**',
+                        dest: 'src/main/webapp/lib/bootstrap-datepicker/'
+                    }
+                ]
             }
         }
     });
