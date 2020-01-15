@@ -1678,20 +1678,21 @@ public class SqlService {
                 int startRow = pageSize * (currentPage - 1);
                 int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
                 int limitRow = maxRow - startRow;
-                stmt = conn.prepareStatement("SELECT  c.id,d.`name`,d.`code`, c.`number`, c.`name`, c.`date`, c.`status`, c.`type` FROM  `contract` c LEFT JOIN department d on  c.`department_id`=d.id LIMIT ?,?");
+                stmt = conn.prepareStatement("SELECT  c.id,d.id,d.`name`,d.`code`, c.`number`, c.`name`, c.`date`, c.`status`, c.`type` FROM  `contract` c LEFT JOIN department d on  c.`department_id`=d.id LIMIT ?,?");
                 stmt.setInt(1, startRow);
                 stmt.setInt(2, limitRow);
                 rs = stmt.executeQuery();
                 while (rs.next()) {
                     JsonObject temp = new JsonObject();
                     temp.addProperty("id", rs.getInt(1));
-                    temp.addProperty("dname", rs.getString(2));
-                    temp.addProperty("code", rs.getString(3));
-                    temp.addProperty("number", rs.getString(4));
-                    temp.addProperty("cname", rs.getString(5));
-                    temp.addProperty("date", rs.getString(6));
-                    temp.addProperty("status", rs.getInt(7));
-                    temp.addProperty("type", rs.getString(8));
+                    temp.addProperty("department_id", rs.getInt(2));
+                    temp.addProperty("department_name", rs.getString(3));
+                    temp.addProperty("code", rs.getString(4));
+                    temp.addProperty("number", rs.getString(5));
+                    temp.addProperty("name", rs.getString(6));
+                    temp.addProperty("date", rs.getString(7));
+                    temp.addProperty("status", rs.getInt(8));
+                    temp.addProperty("type", rs.getString(9));
                     ListArray.add(temp);
                     temp = null;
 
