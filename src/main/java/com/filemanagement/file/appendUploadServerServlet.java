@@ -56,6 +56,7 @@ public class appendUploadServerServlet extends HttpServlet {
                 //当前用户ID
                 int id = oResult.get(Config.USERID).getAsInt();
                 oResult = null;
+                String contract_id=request.getParameter("contract_id");
                 String fileSize = request.getParameter("fileSize");
                 long totalSize = TypeChange.getInstance().stringToLong(fileSize);
                 RandomAccessFile randomAccessfile = null;
@@ -78,7 +79,7 @@ public class appendUploadServerServlet extends HttpServlet {
                     randomAccessfile = new RandomAccessFile(currentFilePath + targetname, "rw");
 
                     String mine = new MimetypesFileTypeMap().getContentType(fileName); //获取mime type
-                    oResult = SqlService.getInstance().addFile(id, fileHash, fileName, targetname, mine, totalSize, 0);
+                    oResult = SqlService.getInstance().addFile(id,contract_id, fileHash, fileName, targetname, mine, totalSize, 0);
                 }
                 boolean mark = false;
                 if (oResult == null) {

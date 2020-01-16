@@ -52,12 +52,14 @@ public class fileServlet extends HttpServlet {
                     String pageSize = request.getParameter("pageSize");
                     String currentPage = request.getParameter("currentPage");
                     String search = request.getParameter("search");
-                    oResult = SqlService.getInstance().getUserFileList(id, pageSize, currentPage, search);
+                    String contract_id=request.getParameter("contract_id");
+                    oResult = SqlService.getInstance().getUserFileList(id,contract_id, pageSize, currentPage, search);
                 } else if ("getFileList".equals(action)) {//获取用户文件列表
                     // /file?action=getFileList&pageSize=20&currentPage=1&search=nd&id=
                     String pageSize = request.getParameter("pageSize");
                     String currentPage = request.getParameter("currentPage");
                     String search = request.getParameter("search");
+
                     oResult = SqlService.getInstance().getFileList(id, pageSize, currentPage, search);
                 } else if ("delFile".equals(action)) {//删除用户文件
                     // /file?action=delFile&fileid=1,2

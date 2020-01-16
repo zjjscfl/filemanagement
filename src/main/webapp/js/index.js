@@ -23,7 +23,7 @@ showBtn,
             downBtn,
             delBtn,
             getOpt = {
-                action: 'getFileList',
+                action: 'getUserFileList',
                 pageSize: 100,
                 currentPage: 1,
                 search: ''
@@ -49,7 +49,9 @@ showBtn,
         addDepartment,
         addType,
         addDate,
-        addSubmit;
+        addSubmit,
+    fileModal,
+    fileBox;
 
     var checkContract;
 
@@ -84,6 +86,10 @@ showBtn,
             addType=$("#addType");
             addDate=$("#addDate");
         addSubmit=$("#addSubmit");
+
+        fileModal=$("#fileModal");
+
+        fileBox=$("#fileBox");
     }
 
     function initAction()
@@ -211,6 +217,17 @@ showBtn,
                 syfm.showNotify('error', "服务器响应异常。");
             });
         });
+
+        showBtn.click(function () {
+            if(!checkContract)
+            {
+                syfm.showNotify('error', "请选择一个合同。");
+                return;
+            }
+            getOpt.contract_id=checkContract.id;
+            initFileList();
+            fileModal.modal('show');
+        });
     }
 
     function uploadFile(files, i)
@@ -278,7 +295,7 @@ showBtn,
                     }
                 }
             };//创建回调方法
-            xhr.open("POST", syfm.apiUriRoot + "appendUploadServer?fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=" + uploadOpt.uuid + "&fileHash=" + uploadOpt.md5,
+            xhr.open("POST", syfm.apiUriRoot + "appendUploadServer?contract_id="+checkContract.id+"&fileName=" + encodeURIComponent(file.name) + "&fileSize=" + file.size + "&uuid=" + uploadOpt.uuid + "&fileHash=" + uploadOpt.md5,
                     false);
             xhr.overrideMimeType("application/octet-stream;charset=utf-8");
             xhr.sendAsBinary(evt.target.result);
@@ -467,13 +484,12 @@ showBtn,
             {
                 if (!data.RESULT)
                 {
-                    listBox.html('');
-                    selectBtn.prop('checked', false);
-                    actionList.hide();
+                    fileBox.html('');
+
                     $.each(data.ListArray, function (idx, item) {
                         showFileItem(item);
                     });
-                    $('ul', listBox).mouseenter(function () {
+                    $('ul', fileBox).mouseenter(function () {
                         $(this).addClass('listHover');
                     }).mouseleave(function () {
                         $(this).removeClass('listHover');
@@ -491,7 +507,7 @@ showBtn,
                             $(item).addClass("file-normal");
                         }
                     });
-                    $('ul .listFileName input[type="checkbox"]', listBox).click(function () {
+                    $('ul .listFileName input[type="checkbox"]', fileBox).click(function () {
                         var grepArray, tagList, itemBox, file;
                         itemBox = $(this).closest('ul');
                         file = itemBox.data("file");
@@ -578,11 +594,12 @@ showBtn,
 
     function showFileItem(file)
     {
-        var ul = $("<ul></ul>").addClass("clearfix").appendTo(listBox);
-        ul.append('<li class="listFileName"><input type="checkbox"/><span>' + file.sourcename + '</span></li>');
+        var ul = $("<ul></ul>").addClass("clearfix").appendTo(fileBox);
+        ul.append('<li class="listFileName"><span>' + file.sourcename + '</span></li>');
         ul.append('<li class="listFileSize"><span>' + file.size + '</span></li>');
-        ul.append('<li class="listFileLastTime"><span>' + file.lasttime + '</span></li>');
+        ul.append('<li class="listFileVersion"><span>' + file.number + '</span></li>');
         ul.append('<li class="listFileStatus"><span>' + formatStatus(file.status) + '</span></li>');
+        ul.append('<li class="listFileAction"><span><a target="_blank" href="'+syfm.apiUriRoot+'fileDown?fileid='+file.uuid +'&userid='+file.userid+'">下载</a></span></li>');
     }
 
 
@@ -643,7 +660,6 @@ showBtn,
         syfm.initPwd();
         initDepartment();
         initContractList();
-        //initFileList();
         initDatepicker();
     });
 })();

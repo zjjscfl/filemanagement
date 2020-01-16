@@ -187,7 +187,7 @@ and open the template in the editor.
         </div>
 
         <div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -197,41 +197,32 @@ and open the template in the editor.
                         <div class="toolBar">
                             <div class="funcList">
                         <span class="uploadBox">
-                            <span class="uploadBtn"><input type="file" id="uploadInput" multiple="multiple"/></span>
+                            <span class="uploadBtn"><input type="file" id="uploadInput" accept="application/zip"/></span>
                             <span><a class="btn btn-primary">上传</a></span>
                         </span>
 
                             </div>
                         </div>
-                        <div class="listHeader">
+                        <div class="fileHeader">
                             <ul class="clearfix">
                                 <li class="listFileName">
-                                    <!--<input type="checkbox" id="selectBtn"/>-->
-                                    <span>名称</span>
+                                    <span>文件名</span>
                                 </li>
                                 <li class="listFileSize">
-                                    <span>代码</span>
+                                    <span>大小</span>
                                 </li>
-                                <li class="listFileLastTime">
-                                    <span>部门</span>
-                                </li>
-                                <li class="listFileLastTime">
-                                    <span>序号</span>
-                                </li>
-                                <li class="listFileLastTime">
-                                    <span>日期</span>
-                                </li>
-                                <li class="listFileLastTime">
-                                    <span>类型</span>
+                                <li class="listFileVersion">
+                                    <span>版本</span>
                                 </li>
                                 <li class="listFileStatus">
                                     <span>状态</span>
                                 </li>
+                                <li class="listFileAction">
+                                    <span>操作</span>
+                                </li>
                             </ul>
                         </div>
-                        <div class="listBody">
-                            <div class="listWrap" id="fileBox">
-                            </div>
+                        <div class="fileWrap" id="fileBox">
                         </div>
                     </div>
                 </div>

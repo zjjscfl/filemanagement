@@ -13,6 +13,7 @@ import com.filemanagement.util.Salt;
 import com.filemanagement.util.TypeChange;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mysql.jdbc.Statement;
 
 import java.io.File;
 import java.sql.Connection;
@@ -810,7 +811,7 @@ public class SqlService {
     }
 
     //添加文件
-    public JsonObject addFile(int userid, String hash, String sourcename, String targetname, String mime, long size, int status) {
+    public JsonObject addFile(int userid,String contract_id, String hash, String sourcename, String targetname, String mime, long size, int status) {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -819,6 +820,8 @@ public class SqlService {
         request.addProperty(Config.MESSAGE, "添加文件信息失败");
         if (TypeChange.getInstance().isNotNull(hash)) {
             request.addProperty(Config.MESSAGE, "文件hash不能为空");
+        }else if (TypeChange.getInstance().isNotNull(contract_id)) {
+            request.addProperty(Config.MESSAGE, "合同编号不能为空");
         } else if (hash.length() > 32) {
             request.addProperty(Config.MESSAGE, "文件hash不能超过32字符");
         } else if (TypeChange.getInstance().isNotNull(sourcename)) {
@@ -836,6 +839,8 @@ public class SqlService {
         } else {
             try {
                 int int_space = TypeChange.getInstance().BToM(size);
+                int contract_id_int=TypeChange.getInstance().stringToInt(contract_id);
+                int file_id=0;
                 boolean mark = false;
                 conn = ConfigManager.getInstance().getConnection();
                 stmt = conn.prepareStatement("SELECT `User`.limitspace FROM `User` WHERE `User`.id = ?");
@@ -853,7 +858,7 @@ public class SqlService {
                 if (mark) {
                     request.addProperty(Config.MESSAGE, "您的空间不足");
                 } else {
-                    stmt = conn.prepareStatement("INSERT INTO File (File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.size,File.`status`,File.lasttime) VALUES (?, ?, ?, ?, ?, ?, ?,now())");
+                    stmt = conn.prepareStatement("INSERT INTO File (File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.size,File.`status`,File.lasttime) VALUES (?, ?, ?, ?, ?, ?, ?,now())", Statement.RETURN_GENERATED_KEYS);
                     stmt.setInt(1, userid);
                     stmt.setString(2, hash);
                     stmt.setString(3, sourcename);
@@ -864,12 +869,20 @@ public class SqlService {
                     if (stmt.executeUpdate() == 1) {
                         request.addProperty(Config.RESULT, Boolean.FALSE);
                         request.addProperty(Config.MESSAGE, "添加成功");
+
+                        rs=stmt.getGeneratedKeys();
+                        if(rs.next())
+                        {
+                            file_id=rs.getInt(1);
+                        }
                     } else {
                         mark = true;
                     }
+                    rs.close();
+                    rs=null;
                     stmt.close();
                     stmt = null;
-                    if (mark) {
+                    if (mark&&file_id>0) {
                         request.addProperty(Config.RESULT, Boolean.TRUE);
                         request.addProperty(Config.MESSAGE, "添加失败");
                     } else {
@@ -882,9 +895,30 @@ public class SqlService {
                             request.addProperty(Config.RESULT, Boolean.TRUE);
                             request.addProperty(Config.MESSAGE, "添加成功，但扣除空间失败");
                         }
+                        stmt.close();
+                        stmt = null;
+
+                        int fileRowList=0;
+                        stmt= conn.prepareStatement("select count(file.id) from file INNER JOIN contract_file on contract_file.file_id=file.id where contract_file.contract_id=?");
+                        stmt.setInt(1,contract_id_int);
+                        rs = stmt.executeQuery();
+                        if (rs.next()) {
+                            fileRowList=rs.getInt(1);
+                        }
+                        rs.close();
+                        rs = null;
+                        stmt.close();
+                        stmt = null;
+
+                        stmt= conn.prepareStatement("INSERT INTO contract_file(`contract_id`,`file_id`,`number`) VALUES (?,?,?)");
+                        stmt.setInt(1, contract_id_int);
+                        stmt.setInt(2, file_id);
+                        stmt.setInt(3, fileRowList+1);
+                        if (stmt.executeUpdate()<=0) {
+                            request.addProperty(Config.RESULT, Boolean.TRUE);
+                            request.addProperty(Config.MESSAGE, "添加成功，但扣除空间失败");
+                        }
                     }
-                    stmt.close();
-                    stmt = null;
                 }
                 conn.close();
                 conn = null;
@@ -1004,7 +1038,7 @@ public class SqlService {
     }
 
     //获取用户文件列表
-    public JsonObject getUserFileList(String userid, String str_pageSize, String str_currentPage, String search) {
+    public JsonObject getUserFileList(String userid,String contractid, String str_pageSize, String str_currentPage, String search) {
         JsonObject request = new JsonObject();
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -1013,7 +1047,9 @@ public class SqlService {
         try {
             if (TypeChange.getInstance().isNotNull(userid)) {
                 request.addProperty(Config.MESSAGE, "用户ID不能为空");
-            } else if (TypeChange.getInstance().isNotNull(str_pageSize)) {
+            }  else if (TypeChange.getInstance().isNotNull(contractid)) {
+                request.addProperty(Config.MESSAGE, "合同编号不能为空");
+            }else if (TypeChange.getInstance().isNotNull(str_pageSize)) {
                 request.addProperty(Config.MESSAGE, "pageSize不能为空");
             } else if (TypeChange.getInstance().isNotNull(str_currentPage)) {
                 request.addProperty(Config.MESSAGE, "currentPage不能为空");
@@ -1024,13 +1060,15 @@ public class SqlService {
                 }
                 int totalSize = 0;
                 int int_userid = TypeChange.getInstance().stringToInt(userid);
+                int int_contractid = TypeChange.getInstance().stringToInt(contractid);
                 int pageSize = TypeChange.getInstance().stringToInt(str_pageSize);
                 int currentPage = TypeChange.getInstance().stringToInt(str_currentPage);
                 JsonArray ListArray = new JsonArray();
                 conn = ConfigManager.getInstance().getConnection();
-                stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File WHERE File.userid=? AND File.`status`>=?" + sql);
+                stmt = conn.prepareStatement("SELECT COUNT(File.id) FROM File inner join `contract_file` on `file`.`id`=`contract_file`.`file_id` WHERE File.userid=? AND File.`status`>=? AND `contract_file`.`contract_id`=?" + sql);
                 stmt.setInt(1, int_userid);
                 stmt.setInt(2, 0);
+                stmt.setInt(3,int_contractid);
                 rs = stmt.executeQuery();
                 if (rs.next()) {
                     totalSize = rs.getInt(1);
@@ -1054,11 +1092,12 @@ public class SqlService {
                     int maxRow = (pageSize * currentPage) >= totalSize ? totalSize : (pageSize * currentPage);
                     int limitRow = maxRow - startRow;
                     String targetname = null;
-                    stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status` FROM File WHERE File.userid=? AND File.`status`>=? " + sql + "ORDER BY File.lasttime DESC LIMIT ?,?");
+                    stmt = conn.prepareStatement("SELECT File.id,File.userid,File.`hash`,File.sourcename,File.targetname,File.mime,File.lasttime,File.size,File.`status`,`contract_file`.`number` FROM File inner join `contract_file` on `file`.`id`=`contract_file`.`file_id` WHERE File.userid=? AND File.`status`>=? AND `contract_file`.`contract_id`=?" + sql + " ORDER BY File.lasttime DESC LIMIT ?,?");
                     stmt.setInt(1, int_userid);
                     stmt.setInt(2, 0);
-                    stmt.setInt(3, startRow);
-                    stmt.setInt(4, limitRow);
+                    stmt.setInt(3,int_contractid);
+                    stmt.setInt(4, startRow);
+                    stmt.setInt(5, limitRow);
                     rs = stmt.executeQuery();
                     while (rs.next()) {
                         JsonObject temp = new JsonObject();
@@ -1073,6 +1112,7 @@ public class SqlService {
                         temp.addProperty("lasttime", rs.getString(7));
                         temp.addProperty("size", TypeChange.getInstance().autoChangeMB(rs.getInt(8)));
                         temp.addProperty("status", rs.getInt(9));
+                        temp.addProperty("number", rs.getInt(10));
                         ListArray.add(temp);
                         temp = null;
                         targetname = null;

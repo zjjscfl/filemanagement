@@ -48,33 +48,23 @@
     float: right;
 }
 
-.listHeader,.fileHeader
+.listHeader
 {
     border-bottom: 1px solid #f2f6fd;
 }
 
-.listHeader ul,.fileHeader ul
+.listHeader ul
 {
     list-style-type: none;
     margin: 0;
     padding: 0 0 0 10px;
 }
 
-.listHeader ul li,.fileHeader ul li
+.listHeader ul li
 {
     float: left;
     line-height: 40px;
-
-}
-
-.listHeader ul li
-{
     width: 14%;
-}
-
-.fileHeader ul li
-{
-    width: 20%;
 }
 
 .listBody
@@ -88,7 +78,7 @@
     height: auto;
 }
 
-.listWrap ul ,.fileWrap ul
+.listWrap ul
 {
     padding: 0 0 0 10px;
     margin: 0;
@@ -96,50 +86,50 @@
     list-style-type: none;
 }
 
-.listWrap ul.listHover,.listWrap ul.listActive,.fileWrap ul.listHover,.fileWrap ul.listActive
+.listWrap ul.listHover,.listWrap ul.listActive
 {
     background: #f6faff;
 }
 
-.listWrap ul li,.fileWrap ul li
+.listWrap ul li
 {
     float: left;
     line-height: 40px;
-
-}
-
-.listWrap ul li
-{
     width: 14%;
 }
 
-.fileWrap ul li
+.listFileName
 {
- width: 20%;
+    width:50%;
 }
 
-.fileHeader ul li.listFileName,.fileWrap ul li.listFileName
+.listFileName input[type="checkbox"]
 {
-    width:40%;
+    margin-top: 0;
+    margin-right: 10px;
+    vertical-align: middle;
 }
 
-.fileHeader ul li.listFileSize,.fileWrap ul li.listFileSize
+.listFileName span
+{
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.listFileSize
 {
     width: 10%;
 }
 
-.fileHeader ul li.listFileVersion,.fileWrap ul li.listFileVersion
+.listFileLastTime
 {
-    width: 10%;
+    width: 20%;
 }
-.fileHeader ul li.listFileStatus,.fileWrap ul li.listFileStatus
-{
-    width:20%;
-}
-.fileHeader ul li.listFileAction,.fileWrap ul li.listFileAction
+.listFileStatus
 {
     width:20%;
 }
+
 
 .uploadMsg
 {
