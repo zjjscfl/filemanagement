@@ -25,10 +25,17 @@
             <artifactId>commons-codec</artifactId>
             <version>1.10</version>
         </dependency>
+                     <!--安全更新 原版本5.1.36 -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.36</version>
+            <version>8.0.16</version>
+<dependency>
+    <groupId>org.craftercms</groupId>
+    <artifactId>crafter-commons-utilities</artifactId>
+    <version>3.1.8</version>
+</dependency>
+
             <scope>provided</scope>
         </dependency>
         <dependency>
